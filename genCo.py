@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+from datetime import datetime
+import pandas as pd
 
 class GenCo:
     def __init__(self, MaxCap, CapObl, fuelType, deratedCap, FOR=0.1):
@@ -42,48 +44,27 @@ def getGenCos(numGen, totalCSO, df=None):
     return np.array(genCos)
 
 
-class Market:
-    def __init__(self, numGen):
-        self.numGen = numGen
-
-    def getCurrentCap(self, genCos):
-        currentCapSum = 0.
-        self.totalAvailableCap = 0.
-        for gen in genCos:
-            weatherCoef = 1.
-            if gen.fuelType in ['Solar', 'Wind']:
-                weatherCoef = np.random.uniform(0.8, 1)
-            tmpp = gen.currentCap(weatherCoef)
-            currentCapSum += gen.participateCap
-            self.totalAvailableCap += tmpp
-        return currentCapSum
-
-    def getObligations(self, genCos):
-        obligationsSum = 0
-        for gen in genCos:
-            obligationsSum += gen.CapObl
-        return obligationsSum
-    
-    def sortGenCos(self, genCos):
-        # np.random.shuffle(genCos)
-        return genCos
 
 
-class PFP:
-    def __init__(self, gencos=[], PRR=3.5, BPR=5.0):
-        self.genCos = gencos
-        #PRR is 3.5 K$ / MWh
-        self.PRR = PRR
-        # BPR is 5 K$/MW-month
-        self.BPR = BPR
+def plotData(dfHourlyLoad, dfHourlySolar, dfHourlyWind, totalCap, totalCSO, yearPlot="2023"):
+    month, day, year = map(int,dfHourlyLoad.loc[0]['Date'].split('/'))
+    start = datetime(year, month, day, int(dfHourlyLoad.loc[0]['Hour Ending']) - 1)
+    month, day, year = map(int,dfHourlyLoad.loc[len(dfHourlyLoad) - 1]['Date'].split('/'))
+    end =  datetime(year, month, day, int(dfHourlyLoad.loc[len(dfHourlyLoad) - 1]['Hour Ending']) - 1)
 
-    def calcPFP(self, balancingRatio=1.0):
-        perfScores = []
-        for genCo in self.genCos:
-            perfScores.append(genCo.participateCap - balancingRatio * genCo.CapObl)
-        perfScores = np.array(perfScores)
-        return perfScores * self.PRR
-    
+    timeRange = pd.date_range(start, end, periods=len(dfHourlyLoad))
+
+
+    plt.plot(timeRange, dfHourlyLoad['Total Load'], label='Total Load')
+    plt.plot(timeRange, dfHourlySolar['tot_solar_mwh'], label='Solar')
+    plt.plot(timeRange, dfHourlyWind['tot_wind_mwh'], label='Wind')
+    plt.plot(timeRange, totalCap * np.ones(len(dfHourlyLoad)), 'k--', label='Total Capacity')
+    plt.plot(timeRange, totalCSO * np.ones(len(dfHourlyLoad)), 'k--', label='Total CSO')
+
+    plt.xlabel('Date')
+    plt.ylabel('Load (MW)')
+    plt.title('Hourly Load of ' + yearPlot)
+    plt.legend()
 
 
 def plotResults(payments, genCos, numGen):
