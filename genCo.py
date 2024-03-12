@@ -16,7 +16,7 @@ class GenCo:
         self.availableCap = self.MaxCap * weatherCoef * np.random.choice(2, 1, p=[self.FOR, 1-self.FOR])
         if self.availableCap < self.CapObl:
             self.deficit = True
-        self.participateCap = np.minimum(self.availableCap, self.CapObl)
+        # self.participateCap = np.minimum(self.availableCap, self.CapObl)
         return self.availableCap
 
 def getGenCos(numGen, totalCSO, df=None):
@@ -76,7 +76,7 @@ def plotResults(payments, genCos, numGen):
     plt.ylabel('Frequency')
     plt.yscale('log')
     plt.title('Payments Distribution over {} runs'.format(len(payments)))
-    print('Sum of payments: ', payments.sum(axis=0).sum())
+    print('Sum of payments: ', payments.sum())
 
     # plt.subplot(2, 1, 2)
     # VREslice, nonVREslice = [], []
@@ -93,3 +93,26 @@ def plotResults(payments, genCos, numGen):
     # plt.title('Payments Distribution over {} runs'.format(len(payments)))
     # plt.legend()
     plt.show()
+
+def plotGenData(genCos, CSO=False):
+    csoHist = {}
+    for genco in genCos:
+        if CSO:
+            temp = genco.CapObl
+        else:
+            temp = genco.MaxCap
+
+        if genco.fuelType in csoHist:
+            csoHist[genco.fuelType] += temp
+        else:
+            csoHist[genco.fuelType] = temp
+    print(csoHist)
+
+    labels = list(csoHist.keys())
+    weights = list(csoHist.values())
+
+    plt.bar(labels, weights)
+    plt.xlabel('Fuel Type')
+    plt.ylabel(*['CSO' if CSO else 'Total Capacity'])
+    # plt.title('CSO Distribution')
+    # plt.show()
