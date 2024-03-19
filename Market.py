@@ -1,9 +1,10 @@
 import numpy as np
 
 class Market:
-    def __init__(self, MRR=1600):
+    def __init__(self, MRR=1600, totalCSO=-1):
         self.numberOfCSCs = 0
         self.MRR = MRR
+        self.totalCSO = totalCSO
 
     def getCurrentCap(self, genCos):
         totalAvailableCap = 0.
@@ -29,27 +30,13 @@ class Market:
                     ', obligationsSum: ', obligationsSum)
         if totalAvailableCap - hourlyLoad + hourlynegativeLoadSolar + hourlynegativeLoadWind  < self.MRR:
             self.numberOfCSCs += 1
-            # raise
-            # print('-- Total Available Capacity: ', self.totalAvailableCap, ' ,Load of the Day: ', load ,\
-            #         ', obligationsSum: ', obligationsSum)
-            # genCos = market.sortGenCos(genCos)
-            # for gen in genCos:
-            #     if not gen.deficit:
-            #         tmp = np.minimum(obligationsSum - currentCapSum, gen.availableCap - gen.participateCap)
-            #         currentCapSum +=  tmp
-            #         gen.participateCap += tmp
-            #     if np.allclose(currentCapSum, obligationsSum):
-            #         break
-            # if not np.allclose(currentCapSum, obligationsSum):
-            #     print('Outage!')
-            #     return None
+
             pfp = PFP(genCos)
-            payments = pfp.calcPFP(hourlynegativeLoadSolar, hourlynegativeLoadWind)
+            balanceRatio = (hourlyLoad + self.MRR) / self.totalCSO
+            payments = pfp.calcPFP(hourlynegativeLoadSolar, hourlynegativeLoadWind, balancingRatio=balanceRatio)
             payments = np.array(payments)
             return payments
         else:
-            # print(market.totalAvailableCap - load - MRR)
-            # print(np.zeros((numGen)).shape)
             return np.zeros((numGen, ))
 
     

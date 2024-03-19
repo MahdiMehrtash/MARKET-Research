@@ -72,26 +72,26 @@ def plotResults(payments, genCos, numGen):
     plt.figure(figsize=(10, 6))
     plt.subplot(2, 1, 1)
     plt.hist(payments.sum(axis=0), bins=bins)
+    plt.xlabel('Payments K$')
+    plt.ylabel('Frequency')
+    plt.yscale('log')
+    plt.title('Payments Distribution over {} runs'.format(len(payments)))
+
+    plt.subplot(2, 1, 2)
+    VREslice, nonVREslice = [], []
+    for i in range(numGen):
+        if genCos[i].fuelType in ['Solar', 'Wind']:
+            VREslice.append(i)
+        else:
+            nonVREslice.append(i)
+
+    plt.hist(payments[:, VREslice].sum(axis=0), bins=bins, alpha=0.5, label='VRE')
+    # plt.hist(payments[:, nonVREslice].sum(axis=0), bins=bins, alpha=0.5, label='Others')
     plt.xlabel('Payments')
     plt.ylabel('Frequency')
     plt.yscale('log')
     plt.title('Payments Distribution over {} runs'.format(len(payments)))
-    print('Sum of payments: ', payments.sum())
-
-    # plt.subplot(2, 1, 2)
-    # VREslice, nonVREslice = [], []
-    # for i in range(numGen):
-    #     if genCos[i].isVRE:
-    #         VREslice.append(i)
-    #     else:
-    #         nonVREslice.append(i)
-    # plt.hist(payments[:, VREslice].sum(axis=0), bins=bins, alpha=0.5, label='VRE')
-    # plt.hist(payments[:, nonVREslice].sum(axis=0), bins=bins, alpha=0.5, label='Others')
-    # plt.xlabel('Payments')
-    # plt.ylabel('Frequency')
-    # plt.yscale('log')
-    # plt.title('Payments Distribution over {} runs'.format(len(payments)))
-    # plt.legend()
+    plt.legend()
     plt.show()
 
 def plotGenData(genCos, CSO=False):

@@ -4,9 +4,7 @@ import matplotlib.pyplot as plt
 
 # Constants
 VRE_MIX = {'low':0.3, 'medium':0.5, 'high':0.7}
-LOAD_ADJ = {'low':1.05, 'medium':1.1, 'high':1.15}
-RESERVE = 0.15
-
+LOAD_ADJ = {'current': 1.00, 'low':1.05, 'medium':1.1, 'high':1.15}
 
 def getISO(ISO='ISNE'):
     df = pd.read_excel('data/november_generator2023.xlsx', skiprows=0, index_col=0)
@@ -60,20 +58,28 @@ def getHourlyGen(ISO='ISNE', verbose=False):
 
 def getFutureGeneratorData(dfISO, totalCSO, load_rate='low', vre_mix='low'):
     dfISOAdj = dfISO.copy()
-    load_coef = LOAD_ADJ[load_rate]
-    vre_coef = VRE_MIX[vre_mix]
-
     initTotalCap = sum(dfISOAdj['Nameplate Capacity (MW)'].to_list())
-    futureTotalCap = initTotalCap * load_coef
     initTotalVRE = sum(dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])].to_list())
-    futureTotalVRE = futureTotalCap * vre_coef
-    futureTotalNonVRE = futureTotalCap - futureTotalVRE
+    
+    if load_rate != 'current':
+        load_coef = LOAD_ADJ[load_rate]
+        vre_coef = VRE_MIX[vre_mix]
 
-    dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])] *= futureTotalVRE / initTotalVRE
-    dfISOAdj['Nameplate Capacity (MW)'].loc[~dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])] *= futureTotalNonVRE / (initTotalCap - initTotalVRE)
+        futureTotalCap = initTotalCap * load_coef
+        futureTotalVRE = futureTotalCap * vre_coef
+        futureTotalNonVRE = futureTotalCap - futureTotalVRE
 
-    futureTotalCSO = totalCSO * load_coef
-    return dfISOAdj, futureTotalCSO, futureTotalCap, (futureTotalVRE / initTotalVRE, futureTotalNonVRE / (initTotalCap - initTotalVRE))
+        dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])] *= futureTotalVRE / initTotalVRE
+        dfISOAdj['Nameplate Capacity (MW)'].loc[~dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])] *= futureTotalNonVRE / (initTotalCap - initTotalVRE)
+
+        futureTotalCSO = totalCSO * load_coef
+        ratios = (futureTotalVRE / initTotalVRE, futureTotalNonVRE / (initTotalCap - initTotalVRE))
+    else:
+        futureTotalCap = initTotalCap
+        futureTotalCSO = totalCSO
+        ratios = (1, 1)
+        
+    return dfISOAdj, futureTotalCSO, futureTotalCap, ratios
 
 def getFutureLoadData(dfHourlyLoad, load_rate='low'):
     load_coef = LOAD_ADJ[load_rate]
