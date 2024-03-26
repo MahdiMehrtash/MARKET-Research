@@ -38,6 +38,16 @@ class Market:
             return payments
         else:
             return np.zeros((numGen, ))
+        
+    def RA(self, genCos, load, verbose=False):
+        totalAvailableCap = self.getCurrentCap(genCos)
+        obligationsSum = self.getObligations(genCos)
+        hourlyLoad, hourlynegativeLoadSolar, hourlynegativeLoadWind = load
+
+        if totalAvailableCap - hourlyLoad + hourlynegativeLoadSolar + hourlynegativeLoadWind  < 0:
+            return 1
+        else:
+            return 0
 
     
 

@@ -56,28 +56,27 @@ def getHourlyGen(ISO='ISNE', verbose=False):
     return dfHourlySolar, dfHourlyWind
 
 
-def getFutureGeneratorData(dfISO, totalCSO, load_rate='low', vre_mix='low'):
+def getFutureGeneratorData(dfISO, totalCSO, cap_rate=1.00, vre_mix='low'):
     dfISOAdj = dfISO.copy()
     initTotalCap = sum(dfISOAdj['Nameplate Capacity (MW)'].to_list())
     initTotalVRE = sum(dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])].to_list())
     
-    if load_rate != 'current':
-        load_coef = LOAD_ADJ[load_rate]
-        vre_coef = VRE_MIX[vre_mix]
+    # if cap_rate != 'current':
+    vre_coef = VRE_MIX[vre_mix]
 
-        futureTotalCap = initTotalCap * load_coef
-        futureTotalVRE = futureTotalCap * vre_coef
-        futureTotalNonVRE = futureTotalCap - futureTotalVRE
+    futureTotalCap = initTotalCap * cap_rate
+    futureTotalVRE = futureTotalCap * vre_coef
+    futureTotalNonVRE = futureTotalCap - futureTotalVRE
 
-        dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])] *= futureTotalVRE / initTotalVRE
-        dfISOAdj['Nameplate Capacity (MW)'].loc[~dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])] *= futureTotalNonVRE / (initTotalCap - initTotalVRE)
+    dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])] *= futureTotalVRE / initTotalVRE
+    dfISOAdj['Nameplate Capacity (MW)'].loc[~dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])] *= futureTotalNonVRE / (initTotalCap - initTotalVRE)
 
-        futureTotalCSO = totalCSO * load_coef
-        ratios = (futureTotalVRE / initTotalVRE, futureTotalNonVRE / (initTotalCap - initTotalVRE))
-    else:
-        futureTotalCap = initTotalCap
-        futureTotalCSO = totalCSO
-        ratios = (1, 1)
+    futureTotalCSO = totalCSO * cap_rate
+    ratios = (futureTotalVRE / initTotalVRE, futureTotalNonVRE / (initTotalCap - initTotalVRE))
+    # else:
+    #     futureTotalCap = initTotalCap
+    #     futureTotalCSO = totalCSO
+    #     ratios = (1, 1)
         
     return dfISOAdj, futureTotalCSO, futureTotalCap, ratios
 
