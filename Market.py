@@ -23,11 +23,9 @@ class Market:
     
     def run(self, numGen=100, genCos=[], load=-1, verbose=False):
         totalAvailableCap = self.getCurrentCap(genCos)
-        obligationsSum = self.getObligations(genCos)
         hourlyLoad, hourlynegativeLoadSolar, hourlynegativeLoadWind = load
         if verbose:
-            print('Total Available Capacity: ', totalAvailableCap, ' ,Load of the Day: ', load ,\
-                    ', obligationsSum: ', obligationsSum)
+            print('Total Available Capacity: ', totalAvailableCap, ' ,Load of the Day: ', load)
         if totalAvailableCap - hourlyLoad + hourlynegativeLoadSolar + hourlynegativeLoadWind  < self.MRR:
             self.numberOfCSCs += 1
 
@@ -41,7 +39,6 @@ class Market:
         
     def RA(self, genCos, load, verbose=False):
         totalAvailableCap = self.getCurrentCap(genCos)
-        obligationsSum = self.getObligations(genCos)
         hourlyLoad, hourlynegativeLoadSolar, hourlynegativeLoadWind = load
 
         if totalAvailableCap - hourlyLoad + hourlynegativeLoadSolar + hourlynegativeLoadWind  < 0:

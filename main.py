@@ -4,16 +4,37 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import argparse
 from tqdm import tqdm
+from generationRA import getFutureLoad
+import pdb
 
 
 from genCo import getGenCos, plotResults, plotData, plotGenData
-from utilsData import getISO, getHourlyLoad, getHourlyGen, \
-    getFutureGeneratorData, getFutureLoadData, getFutureGenerationData 
+# from utilsData import getISO, getHourlyLoad, getHourlyGen, \
+#     getFutureGeneratorData, getFutureLoadData, getFutureGenerationData 
 from Market import Market, PFP
 
-# @TODO: 1) Fix MRR - Done
-#        2) Convex conmbination
-#        3) Fix Balancing Ratio - Done
+def getFutureData(ISO='ISNE', verbose=False, path='data/forecast/', load_rate='high', vre_mix='high'):
+    if ISO == 'ISNE':
+        dfHourlyLoad = pd.read_csv(path + 'load_rate_' + load_rate + '/dfHourlyDemand2030.csv')
+        dfHourlyLoad = dfHourlyLoad.reset_index(drop=True)
+
+        dfHourlySolar = pd.read_csv(path + 'load_rate_' + load_rate + '/vre_' + vre_mix + '/dfHourlySolar.csv')
+        dfHourlySolar = dfHourlySolar.reset_index(drop=True)
+
+        dfHourlyWind = pd.read_csv(path + 'load_rate_' + load_rate + '/vre_' + vre_mix + '/dfHourlyWind.csv')
+        dfHourlyWind = dfHourlyWind.reset_index(drop=True)
+
+        dfISO = pd.read_csv(path + 'load_rate_' + load_rate + '/vre_' + vre_mix + '/dfISO.csv')
+        dfISO = dfISO.reset_index(drop=True)
+
+        dfinfo = pd.read_csv(path + 'load_rate_' + load_rate + '/vre_' + vre_mix + '/infoDict.csv')
+        dfinfo = dfinfo.reset_index(drop=True)
+        info = [dfinfo['numGenerators'], dfinfo['totalCSO'], dfinfo['totalCap'], dfinfo['adjRatios']]
+    else:
+        raise NotImplementedError
+    return dfHourlyLoad, dfHourlySolar, dfHourlyWind, dfISO, info
+
+# @TODO: 1) Random renewable generation!
 
 if __name__ == "__main__":
 
@@ -23,39 +44,36 @@ if __name__ == "__main__":
     parser.add_argument('--load-rate', type=str, choices=['current', 'low', 'medium' , 'high'], default='low')
     parser.add_argument('--vre-mix', type=str, choices=['current', 'low', 'medium' , 'high'], default='low')
     parser.add_argument('--markov-cons', type=int, default=1, help='Number of simulations to run.')
+    parser.add_argument('--sigma', type=float, default=0.1, help='Number of simulations to run.')
     parser.add_argument('--verbose', type=bool, default=False)
 
     args = parser.parse_args()
 
-    # Get 2023 Data
-    dfISO, numGenerators, totalCap, totalCSO = getISO(ISO=args.ISO)
-    dfHourlyLoad = getHourlyLoad(ISO=args.ISO, verbose=args.verbose)
-    dfHourlySolar, dfHourlyWind = getHourlyGen(ISO=args.ISO, verbose=args.verbose)
-
-    # Build Future Data
-    dfISOAdj, totalCSOAdj, totalCapAdj, adjRatios = getFutureGeneratorData(dfISO, totalCSO, load_rate=args.load_rate, vre_mix=args.vre_mix)
-    dfHourlyLoadAdj = getFutureLoadData(dfHourlyLoad, args.load_rate)
-    dfHourlySolarAdj, dfHourlyWindAdj = getFutureGenerationData(dfHourlySolar, dfHourlyWind, adjRatios)
+    # Get Future Load and Data
+    dfHourlyLoad, dfHourlySolar, dfHourlyWind, dfISO, info = getFutureData(ISO=args.ISO, verbose=args.verbose, path='data/forecast/' , load_rate=args.load_rate)
+    numGenerators, totalCSO, totalCap, adjRatios = info[0][0], info[1][0], info[2][0], info[3][0]
 
     # Get the Minimum Reserve Requirement for CSC
-    capacities = list(dfISOAdj['Nameplate Capacity (MW)'].sort_values(ascending=False))
+    capacities = list(dfISO['Nameplate Capacity (MW)'].sort_values(ascending=False))
     MRR = capacities[0] + 0.5 * capacities[1]
     
     # Get the GenCos
-    genCos =  getGenCos(numGenerators, totalCSOAdj, dfISOAdj)
-
+    genCos =  getGenCos(numGenerators, totalCSO, dfISO)
+    # pdb.set_trace()
     # Run the Market Simulation
     payments = []
-    market = Market(MRR=MRR, totalCSO=totalCSOAdj)
+    market = Market(MRR=MRR, totalCSO=totalCSO)
     for __ in range(args.markov_cons):
-        for hour in tqdm(range(dfHourlyLoadAdj.index.stop - dfHourlyLoadAdj.index.start)):
-            hourlyLoad = dfHourlyLoadAdj.iloc[hour]['Total Load']
-            hourlynegativeLoadSolar = dfHourlySolarAdj.iloc[hour]['tot_solar_mwh']
-            hourlynegativeLoadWind = dfHourlyWindAdj.iloc[hour]['tot_wind_mwh']
+        for hour in tqdm(range(dfHourlyLoad.index.stop - dfHourlyLoad.index.start)):
+            hourlyLoad = dfHourlyLoad.iloc[hour]['Total Load']
+            hourlynegativeLoadSolar = np.random.normal(dfHourlySolar.iloc[hour]['tot_solar_mwh'], args.sigma, 1)
+            hourlynegativeLoadWind = np.random.normal(dfHourlyWind.iloc[hour]['tot_wind_mwh'], args.sigma, 1)
 
             loads = [hourlyLoad, hourlynegativeLoadSolar, hourlynegativeLoadWind]
             payment = market.run(numGen=numGenerators, genCos=genCos, load=loads, verbose=False)
             payments.append(payment)
+
+            
     print('Average CSC: ', market.numberOfCSCs / args.markov_cons)
 
     

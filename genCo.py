@@ -26,7 +26,7 @@ def getGenCos(numGen, totalCSO, df=None):
 
     derateCnt = {'Coal': 1.0, 'Gas': 1.0, 'Hydro': 1.0, 'Nuclear': 1.0, \
                  'Oil': 1.0, 'Waste': 1.0, 'Wood': 1.0,\
-                 'Solar': 0.3, 'Wind': 0.15, 'Other': 1.0}
+                 'Solar': 0.15, 'Wind': 0.15, 'Other': 1.0}
     deratedCap = [MaxCaps[i] * derateCnt[fuelTypes[i]] for i in range(numGen)]
     totalDeratedCap = sum(deratedCap)
     obligations = deratedCap * np.array(totalCSO)/np.array(totalDeratedCap)
@@ -69,29 +69,45 @@ def plotData(dfHourlyLoad, dfHourlySolar, dfHourlyWind, totalCap, totalCSO, year
 
 def plotResults(payments, genCos, numGen):
     bins=50
-    plt.figure(figsize=(10, 6))
-    plt.subplot(2, 1, 1)
+    # plt.figure(figsize=(10, 10))
+    # plt.subplot(2, 1, 1)
     plt.hist(payments.sum(axis=0), bins=bins)
     plt.xlabel('Payments K$')
     plt.ylabel('Frequency')
     plt.yscale('log')
     plt.title('Payments Distribution over {} runs'.format(len(payments)))
+    plt.show()
 
-    plt.subplot(2, 1, 2)
-    VREslice, nonVREslice = [], []
-    for i in range(numGen):
-        if genCos[i].fuelType in ['Solar', 'Wind']:
-            VREslice.append(i)
+    # # plt.subplot(2, 1, 2)
+    # VREslice, nonVREslice = [], []
+    # for i in range(numGen):
+    #     if genCos[i].fuelType in ['Solar', 'Wind']:
+    #         VREslice.append(i)
+    #     else:
+    #         nonVREslice.append(i)
+
+    # plt.hist(payments[:, VREslice].sum(axis=0), bins=bins, alpha=0.5, label='VRE')
+    # # plt.hist(payments[:, nonVREslice].sum(axis=0), bins=bins, alpha=0.5, label='Others')
+    # plt.xlabel('Payments')
+    # plt.ylabel('Frequency')
+    # plt.yscale('log')
+    # plt.title('Payments Distribution over {} runs'.format(len(payments)))
+    # plt.legend()
+    # plt.show()
+
+    paymentsByFuel = {}
+    for i in range(len(genCos)):
+        genco = genCos[i]
+        if genco.fuelType in paymentsByFuel:
+            paymentsByFuel[genco.fuelType] += payments[:, i].sum()
         else:
-            nonVREslice.append(i)
+            paymentsByFuel[genco.fuelType]  = payments[:, i].sum()
 
-    plt.hist(payments[:, VREslice].sum(axis=0), bins=bins, alpha=0.5, label='VRE')
-    # plt.hist(payments[:, nonVREslice].sum(axis=0), bins=bins, alpha=0.5, label='Others')
-    plt.xlabel('Payments')
-    plt.ylabel('Frequency')
-    plt.yscale('log')
-    plt.title('Payments Distribution over {} runs'.format(len(payments)))
-    plt.legend()
+    print(paymentsByFuel)
+    index = np.argsort(list(paymentsByFuel.values()))
+    index = index[::-1]
+    plt.bar(np.array(list(paymentsByFuel.keys()))[index], np.array(list(paymentsByFuel.values()))[index])
+    plt.savefig('PaymentsByFuel.pdf')
     plt.show()
 
 def plotGenData(genCos, CSO=False):

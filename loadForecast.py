@@ -12,7 +12,7 @@ from utilsData import getISO, getHourlyLoad, getHourlyGen, \
 
 LOAD_ADJ = {'low':0.95, 'medium':1.0, 'high':1.05}
 # Summer and Winter Peaks
-PeakGrowths = [1.1, 1.27]
+PeakGrowths = [1.09, 1.206]
 
 def getFutureLoadData(dfHourlyLoad, load_rate='low'):
     dfHourlyLoadAdj = dfHourlyLoad.copy()
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     dfHourlyLoadAdj = getFutureLoadData(dfHourlyLoad, args.load_rate)
     
     # Save to CSV
-    dfHourlyLoadAdj.to_csv('data/forecast/HourlyDemand2030.csv', index=False)
+    dfHourlyLoadAdj.to_csv('data/forecast/load_rate_' + args.load_rate + '/dfHourlyDemand2030.csv', index=False)
 
 
     if args.verbose:
