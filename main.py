@@ -71,14 +71,15 @@ if __name__ == "__main__":
 
             loads = [hourlyLoad, hourlynegativeLoadSolar, hourlynegativeLoadWind]
             payment = market.run(numGen=numGenerators, genCos=genCos, load=loads, verbose=False)
+            payment = np.concatenate([x if isinstance(x, np.ndarray) else [x] for x in payment])
             payments.append(payment)
 
             
     print('Average CSC: ', market.numberOfCSCs / args.markov_cons)
-
     
     payments = np.array(payments)
-    plotResults(payments, genCos, numGenerators)
+    print('Total Payments:', payments.sum())
+    plotResults(payments, genCos, numGenerators, [args.load_rate, args.vre_mix], markov_cons=args.markov_cons)
 
 
 

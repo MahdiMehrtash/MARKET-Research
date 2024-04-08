@@ -3,6 +3,12 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import pandas as pd
 
+# Based on https://www.iso-ne.com/static-assets/documents/genrtion_resrcs/gads/class_ave_2010.pdf
+FOR_dict = {'Gas': 0.04, 'Oil': 0.08, 'Coal': 0.08, \
+            'Hydro': 0.07, 'Nuclear': 0.01, \
+            'Waste': 0.09, 'Wood': 0.09,\
+            'Solar': 0.07, 'Wind': 0.07, 'Other': 0.15}
+
 class GenCo:
     def __init__(self, MaxCap, CapObl, fuelType, deratedCap, FOR=0.1):
         self.MaxCap = MaxCap
@@ -10,12 +16,9 @@ class GenCo:
         self.FOR = FOR
         self.fuelType = fuelType
         self.deratedCap = deratedCap
-        self.deficit = False
 
     def currentCap(self, weatherCoef=1):
         self.availableCap = self.MaxCap * weatherCoef * np.random.choice(2, 1, p=[self.FOR, 1-self.FOR])
-        if self.availableCap < self.CapObl:
-            self.deficit = True
         # self.participateCap = np.minimum(self.availableCap, self.CapObl)
         return self.availableCap
 
@@ -35,11 +38,8 @@ def getGenCos(numGen, totalCSO, df=None):
         MaxCap = MaxCaps[i] 
         fuelType = fuelTypes[i]
         obligation = obligations[i]
-        if fuelType in ['Solar', 'Wind']:
-            FOR = np.min([1, np.max([0, np.random.exponential(0.05)])])
-        else:
-            FOR = np.min([1, np.max([0, np.random.exponential(0.15)])])
-        
+        FOR = FOR_dict[fuelType]
+
         genCos.append(GenCo(MaxCap, obligation, fuelType, deratedCap[i], FOR))
     return np.array(genCos)
 
@@ -67,16 +67,20 @@ def plotData(dfHourlyLoad, dfHourlySolar, dfHourlyWind, totalCap, totalCSO, year
     plt.legend()
 
 
-def plotResults(payments, genCos, numGen):
+def plotResults(payments, genCos, numGen, info, markov_cons=1):
     bins=50
-    # plt.figure(figsize=(10, 10))
-    # plt.subplot(2, 1, 1)
-    plt.hist(payments.sum(axis=0), bins=bins)
+    print(payments.shape)
+    payed = payments.sum(axis=0)
+    print(payed.shape)
+    plt.hist(payed / markov_cons, bins=bins)
     plt.xlabel('Payments K$')
     plt.ylabel('Frequency')
     plt.yscale('log')
-    plt.title('Payments Distribution over {} runs'.format(len(payments)))
-    plt.show()
+    plt.title('Average Payments Distribution over {} runs'.format(markov_cons))
+    plt.savefig('Payments/payments' + info[0] + '-' + info[1] + '.pdf')
+    plt.show(block=False)
+    plt.pause(3)
+    plt.close()
 
     # # plt.subplot(2, 1, 2)
     # VREslice, nonVREslice = [], []
@@ -106,9 +110,11 @@ def plotResults(payments, genCos, numGen):
     print(paymentsByFuel)
     index = np.argsort(list(paymentsByFuel.values()))
     index = index[::-1]
-    plt.bar(np.array(list(paymentsByFuel.keys()))[index], np.array(list(paymentsByFuel.values()))[index])
-    plt.savefig('PaymentsByFuel.pdf')
-    plt.show()
+    plt.bar(np.array(list(paymentsByFuel.keys()))[index], np.array(list(paymentsByFuel.values()))[index] / markov_cons)
+    plt.savefig('Payments/paymentsByFuel' + info[0] + '-' + info[1] + '.pdf')
+    plt.show(block=False)
+    plt.pause(3)
+    plt.close()
 
 def plotGenData(genCos, CSO=False):
     csoHist = {}

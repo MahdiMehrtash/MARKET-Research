@@ -30,12 +30,11 @@ class Market:
             self.numberOfCSCs += 1
 
             pfp = PFP(genCos)
-            balanceRatio = (hourlyLoad + self.MRR) / self.totalCSO
-            payments = pfp.calcPFP(hourlynegativeLoadSolar, hourlynegativeLoadWind, balancingRatio=balanceRatio)
+            payments = pfp.calcPFP(hourlynegativeLoadSolar, hourlynegativeLoadWind, self.totalCSO)
             payments = np.array(payments)
             return payments
         else:
-            return np.zeros((numGen, ))
+            return np.zeros((numGen, 1))
         
     def RA(self, genCos, load, verbose=False):
         totalAvailableCap = self.getCurrentCap(genCos)
@@ -57,8 +56,13 @@ class PFP:
         # BPR is 5 K$/MW-month
         # self.BPR = BPR
 
-    def calcPFP(self, hourlynegativeLoadSolar, hourlynegativeLoadWind, balancingRatio=1.0):
+    def calcPFP(self, hourlynegativeLoadSolar, hourlynegativeLoadWind, totalCSO):
         perfScores = []
+
+        # balancingRatio = (hourlyLoad + self.MRR) / self.totalCSO
+        balancingRatio = (sum([genCo.availableCap for genCo in self.genCos if genCo.fuelType not in ['Solar', 'Wind']]) +\
+                                 hourlynegativeLoadWind + hourlynegativeLoadSolar) / totalCSO
+
         # Calculate Wind and Solar separately
         solarCSO = sum([genCo.CapObl for genCo in self.genCos if genCo.fuelType == 'Solar'])
         windCSO = sum([genCo.CapObl for genCo in self.genCos if genCo.fuelType == 'Wind'])
