@@ -1,10 +1,9 @@
 import numpy as np
 
 class Market:
-    def __init__(self, MRR=1600, totalCSO=-1):
+    def __init__(self, MRR=1600):
         self.numberOfCSCs = 0
         self.MRR = MRR
-        self.totalCSO = totalCSO
 
     def getCurrentCap(self, genCos):
         totalAvailableCap = 0.
@@ -21,7 +20,7 @@ class Market:
             obligationsSum += gen.CapObl
         return obligationsSum
     
-    def run(self, numGen=100, genCos=[], load=-1, verbose=False):
+    def run(self, numGen=100, genCos=[], totalCSO=0, load=-1, verbose=False):
         totalAvailableCap = self.getCurrentCap(genCos)
         hourlyLoad, hourlynegativeLoadSolar, hourlynegativeLoadWind = load
         if verbose:
@@ -30,7 +29,7 @@ class Market:
             self.numberOfCSCs += 1
 
             pfp = PFP(genCos)
-            payments = pfp.calcPFP(hourlynegativeLoadSolar, hourlynegativeLoadWind, self.totalCSO)
+            payments = pfp.calcPFP(hourlynegativeLoadSolar, hourlynegativeLoadWind, totalCSO)
             payments = np.array(payments)
             return payments
         else:

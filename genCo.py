@@ -2,12 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from datetime import datetime
 import pandas as pd
-
 # Based on https://www.iso-ne.com/static-assets/documents/genrtion_resrcs/gads/class_ave_2010.pdf
-FOR_dict = {'Gas': 0.04, 'Oil': 0.08, 'Coal': 0.08, \
+FOR_dict = {'Gas': 0.04, 'Oil': 0.13, 'Coal': 0.08, \
             'Hydro': 0.07, 'Nuclear': 0.01, \
             'Waste': 0.09, 'Wood': 0.09,\
-            'Solar': 0.07, 'Wind': 0.07, 'Other': 0.15}
+            'Solar': 0.07, 'Wind': 0.07, 'Other': 0.08}
 
 class GenCo:
     def __init__(self, MaxCap, CapObl, fuelType, deratedCap, FOR=0.1):
@@ -15,32 +14,43 @@ class GenCo:
         self.CapObl = CapObl
         self.FOR = FOR
         self.fuelType = fuelType
-        self.deratedCap = deratedCap
 
     def currentCap(self, weatherCoef=1):
         self.availableCap = self.MaxCap * weatherCoef * np.random.choice(2, 1, p=[self.FOR, 1-self.FOR])
         # self.participateCap = np.minimum(self.availableCap, self.CapObl)
         return self.availableCap
+    
+    def updateCSO(self, dfCSO, dfISO, cap_rate, adj_rate, month):
+        index = 1
+        if self.fuelType in ['Wind', 'Solar']:
+            index = 0
+        if len(dfCSO[dfCSO['Fuel Type'] == self.fuelType]) > 0:
+            totalCSObyFuel = dfCSO[dfCSO['Fuel Type'] ==  self.fuelType][month].sum()
+            totalCapbyFuel = dfISO[dfISO['Fuel Type'] == self.fuelType]['Nameplate Capacity (MW)'].sum()
+            # numberOfGenbyFuel = len(dfCSO[dfCSO['Fuel Type'] == self.fuelType])
+            self.CapObl = (self.MaxCap / totalCapbyFuel) * totalCSObyFuel * adj_rate[index]
+        else:
+            self.CapObl = 0.0
 
-def getGenCos(numGen, totalCSO, df=None):
+def getGenCos(numGen, df=None, fuelMappingDict=None):
     genCos = []
     MaxCaps = df['Nameplate Capacity (MW)'].to_list()
     fuelTypes = df['Fuel Type'].to_list()
 
-    derateCnt = {'Coal': 1.0, 'Gas': 1.0, 'Hydro': 1.0, 'Nuclear': 1.0, \
-                 'Oil': 1.0, 'Waste': 1.0, 'Wood': 1.0,\
-                 'Solar': 0.15, 'Wind': 0.15, 'Other': 1.0}
-    deratedCap = [MaxCaps[i] * derateCnt[fuelTypes[i]] for i in range(numGen)]
-    totalDeratedCap = sum(deratedCap)
-    obligations = deratedCap * np.array(totalCSO)/np.array(totalDeratedCap)
+    # derateCnt = {'Coal': 1.0, 'Gas': 1.0, 'Hydro': 1.0, 'Nuclear': 1.0, \
+    #              'Oil': 1.0, 'Waste': 1.0, 'Wood': 1.0,\
+    #              'Solar': 0.15, 'Wind': 0.15, 'Other': 1.0}
+    # deratedCap = [MaxCaps[i] * derateCnt[fuelTypes[i]] for i in range(numGen)]
+    # totalDeratedCap = sum(deratedCap)
+    # obligations = deratedCap * np.array(totalCSO)/np.array(totalDeratedCap)
 
     for i in range(numGen):
         MaxCap = MaxCaps[i] 
         fuelType = fuelTypes[i]
-        obligation = obligations[i]
+        obligation = -1
         FOR = FOR_dict[fuelType]
 
-        genCos.append(GenCo(MaxCap, obligation, fuelType, deratedCap[i], FOR))
+        genCos.append(GenCo(MaxCap, obligation, fuelType, FOR))
     return np.array(genCos)
 
 
@@ -116,6 +126,9 @@ def plotResults(payments, genCos, numGen, info, markov_cons=1):
     plt.pause(3)
     plt.close()
 
+    plotGenData(genCos, CSO=True)
+
+
 def plotGenData(genCos, CSO=False):
     csoHist = {}
     for genco in genCos:
@@ -136,5 +149,7 @@ def plotGenData(genCos, CSO=False):
     plt.bar(labels, weights)
     plt.xlabel('Fuel Type')
     plt.ylabel(*['CSO' if CSO else 'Total Capacity'])
-    # plt.title('CSO Distribution')
-    # plt.show()
+    plt.savefig('Payments/CSOByFuel.pdf')
+    plt.show(block=False)
+    plt.pause(3)
+    plt.close()

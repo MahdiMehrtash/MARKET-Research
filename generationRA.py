@@ -4,22 +4,34 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import argparse
 from tqdm import tqdm
+import time
 
 
-from genCo import getGenCos, plotResults, plotData, plotGenData
+from genCo import getGenCos
 from utilsData import getISO, getHourlyGen, \
-    getFutureGeneratorData, getFutureLoadData, getFutureGenerationData, \
+    getFutureGeneratorData, getFutureGenerationData, \
     getHourlyLoad
 from Market import Market
 
+dfCSO = pd.read_csv('data/CSO2023.csv', skiprows=0, index_col=None)
 
-def getRA(iter, market, genCos, dfLoad, dfSolar, dfWind):
+
+def getRA(iter, market, genCos, dfLoad, dfSolar, dfWind, cap_rate=1.00):
     outageCount = 0
+    last_month = None
     for __ in range(iter):
         for hour in tqdm(range(dfLoad.index.stop - dfLoad.index.start)):
             hourlyLoad = dfLoad.iloc[hour]['Total Load']
             hourlynegativeLoadSolar = dfSolar.iloc[hour]['tot_solar_mwh']
             hourlynegativeLoadWind = dfWind.iloc[hour]['tot_wind_mwh']
+            
+            # update CSO base on the month
+            month = pd.to_datetime(dfLoad.iloc[hour]['Date']).strftime('%B')
+            if last_month != month:
+                # a = time.time()
+                for gen in genCos: gen.updateCSO(dfCSO, cap_rate, month);
+                # print(time.time() - a)
+                last_month = month
 
             loads = [hourlyLoad, hourlynegativeLoadSolar, hourlynegativeLoadWind]
             outageCount += int(market.RA(genCos=genCos, load=loads, verbose=False))
@@ -57,8 +69,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # Get 2023 Gen Data
-    dfISO, numGenerators, totalCap, totalCSO = getISO(ISO=args.ISO)
+    dfISO, numGenerators, totalCap, __ = getISO(ISO=args.ISO)
     dfHourlySolar, dfHourlyWind = getHourlyGen(ISO=args.ISO, verbose=args.verbose)
+    fuelMappingDict = dict(zip(dfISO['Technology'].tolist(), dfISO['Energy Source Code'].tolist()))
 
     if True:
         # Get 2030 Load
@@ -68,19 +81,19 @@ if __name__ == "__main__":
         RA = False
         while RA is False:
             print('capacity increase rate:', cap_rate)
-            dfISOAdj, totalCSOAdj, totalCapAdj, adjRatios = getFutureGeneratorData(dfISO, totalCSO, cap_rate=cap_rate, vre_mix=args.vre_mix)
+            dfISOAdj, totalCapAdj, adjRatios = getFutureGeneratorData(dfISO, cap_rate=cap_rate, vre_mix=args.vre_mix)
             dfHourlySolarAdj, dfHourlyWindAdj = getFutureGenerationData(dfHourlySolar, dfHourlyWind, adjRatios)
             
             # Get the GenCos
-            genCos =  getGenCos(numGenerators, totalCSOAdj, dfISOAdj)
+            genCos =  getGenCos(numGenerators, dfISOAdj, fuelMappingDict)
 
-            market = Market(MRR=[], totalCSO=totalCSOAdj)
-            RA, __ = getRA(args.markov_cons, market, genCos, dfHourlyLoadAdj, dfHourlySolarAdj, dfHourlyWindAdj)
+            market = Market(MRR=[])
+            RA, lole = getRA(args.markov_cons, market, genCos, dfHourlyLoadAdj, dfHourlySolarAdj, dfHourlyWindAdj, cap_rate=cap_rate)
             if RA is False:
                 cap_rate += 0.05
 
         # Save to CSV
-        infoDict = {'numGenerators':numGenerators, 'totalCSO':totalCSOAdj, 'totalCap':totalCapAdj, 'adjRatios':adjRatios}
+        infoDict = {'numGenerators':numGenerators, 'totalCap':totalCapAdj, 'adjRatios':adjRatios, 'cap_rate':cap_rate, 'LOLE': lole}
         dfinfo = pd.DataFrame.from_dict(infoDict)
         
         dfHourlySolarAdj.to_csv('data/forecast/load_rate_' + args.load_rate + '/vre_' + args.vre_mix +'/dfHourlySolar.csv', index=False)

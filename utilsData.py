@@ -1,29 +1,31 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+from loadForecast import LOAD_ADJ
 
 # Constants
 VRE_MIX = {'low':0.3, 'medium':0.5, 'high':0.7}
-LOAD_ADJ = {'current': 1.00, 'low':1.05, 'medium':1.1, 'high':1.15}
+
+fuelDict = {'BIT':'Coal', 'NG':'Gas', 'WAT':'Hydro', 'NUC':'Nuclear', \
+                'DFO':'Oil', 'RFO':'Oil', 'JF':'Oil', 'KER':'Oil', \
+                'MSW':'Waste', 'SUN':'Solar', 'WND':'Wind', 'WDS':'Wood'}
 
 def getISO(ISO='ISNE'):
-    df = pd.read_excel('data/november_generator2023.xlsx', skiprows=0, index_col=0)
-    df = df[1:]
-    df.columns = df.iloc[0]
-    df = df[1:]
-    dfISO = df.loc[df['Balancing Authority Code'] == ISO]
+    # df = pd.read_excel('data/november_generator2023.xlsx', skiprows=0, index_col=0)
+    # df = df[1:]
+    # df.columns = df.iloc[0]
+    # df = df[1:]
+    # dfISO = df.loc[df['Balancing Authority Code'] == ISO]
+    dfISO = pd.read_csv('data/ISNEGEN23.csv')
 
     numGenerators = len(dfISO.index)
     totalCap = sum(dfISO['Nameplate Capacity (MW)'].to_list())
     totalCSO = 28660.0 #MWs from ISO-NE website
 
-    feulDict = {'BIT':'Coal', 'NG':'Gas', 'WAT':'Hydro', 'NUC':'Nuclear', \
-                'DFO':'Oil', 'RFO':'Oil', 'JF':'Oil', 'KER':'Oil', \
-                'MSW':'Waste', 'SUN':'Solar', 'WND':'Wind', 'WDS':'Wood'}
-    fuels = dfISO['Energy Source Code'].map(feulDict)
+    fuels = dfISO['Energy Source Code'].map(fuelDict)
     fuels = fuels.fillna('Other')
     dfISO.insert(3, 'Fuel Type', fuels)
-    print('Total Capacity: ', totalCap, ', CSO: ', totalCSO, ', of CSO% : ', totalCSO/totalCap*100)
+    print('Total Capacity: ', totalCap, 'Number of Generators: ', numGenerators)
     return dfISO, numGenerators, totalCap, totalCSO
 
 def getHourlyLoad(ISO='ISNE', verbose=False, path='data/HourlyDemand2023.csv'):
@@ -56,13 +58,12 @@ def getHourlyGen(ISO='ISNE', verbose=False):
     return dfHourlySolar, dfHourlyWind
 
 
-def getFutureGeneratorData(dfISO, totalCSO, cap_rate=1.00, vre_mix='low'):
+def getFutureGeneratorData(dfISO, cap_rate=1.00, vre_mix='low'):
     dfISOAdj = dfISO.copy()
     initTotalCap = sum(dfISOAdj['Nameplate Capacity (MW)'].to_list())
     initTotalVRE = sum(dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])].to_list())
     initTotalnonVRE = initTotalCap - initTotalVRE
     
-    # if cap_rate != 'current':
     vre_coef = VRE_MIX[vre_mix]
 
     futureTotalCap = initTotalCap * cap_rate
@@ -72,15 +73,15 @@ def getFutureGeneratorData(dfISO, totalCSO, cap_rate=1.00, vre_mix='low'):
     dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])] *= futureTotalVRE / initTotalVRE
     dfISOAdj['Nameplate Capacity (MW)'].loc[~dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])] *= futureTotalNonVRE / initTotalnonVRE
 
-    futureTotalCSO = totalCSO * cap_rate
+    # futureTotalCSO = totalCSO * cap_rate
     ratios = (futureTotalVRE / initTotalVRE, futureTotalNonVRE / initTotalnonVRE)
         
-    return dfISOAdj, futureTotalCSO, futureTotalCap, ratios
+    return dfISOAdj, futureTotalCap, ratios
 
-def getFutureLoadData(dfHourlyLoad, load_rate='low'):
-    load_coef = LOAD_ADJ[load_rate]
-    dfHourlyLoad['Total Load'] *= load_coef
-    return dfHourlyLoad
+# def getFutureLoadData(dfHourlyLoad, load_rate='low'):
+#     load_coef = LOAD_ADJ[load_rate]
+#     dfHourlyLoad['Total Load'] *= load_coef
+#     return dfHourlyLoad
 
 def getFutureGenerationData(dfHourlySolar, dfHourlyWind, adjRatios):
     dfHourlySolarAdj = dfHourlySolar.copy()

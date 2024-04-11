@@ -3,12 +3,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
 import argparse
-from tqdm import tqdm
 
-
-from genCo import getGenCos, plotResults, plotData, plotGenData
-from utilsData import getISO, getHourlyLoad, getHourlyGen, \
-    getFutureGeneratorData, getFutureGenerationData 
+from utilsData import getHourlyLoad
 
 LOAD_ADJ = {'low':0.95, 'medium':1.0, 'high':1.05}
 # Summer and Winter Peaks
@@ -16,13 +12,16 @@ PeakGrowths = [1.09, 1.206]
 
 def getFutureLoadData(dfHourlyLoad, load_rate='low'):
     dfHourlyLoadAdj = dfHourlyLoad.copy()
+    if load_rate == 'current':
+        return dfHourlyLoadAdj
+    
     load_coef = LOAD_ADJ[load_rate]
+
     summerPeakIndex = dfHourlyLoad['Total Load'].argmax()
     linComb = np.linspace(PeakGrowths[0], PeakGrowths[1], num=8760//2)
     linComb = np.concatenate((linComb, linComb[::-1]))
     linComb = np.roll(linComb, summerPeakIndex)
-    # plt.plot(linComb)
-    # plt.show()
+
     adjustedLoads = np.array(dfHourlyLoad['Total Load'].to_list())
     adjustedLoads = adjustedLoads * linComb
     dfHourlyLoadAdj['Total Load'] = adjustedLoads * load_coef
@@ -64,7 +63,10 @@ if __name__ == "__main__":
         plt.xlabel('Date')
         plt.ylabel('Load (MW)')
         plt.legend()
-        plt.show()
+        plt.show(block=False)
+        plt.pause(3)
+        plt.close()
+
 
     
 
