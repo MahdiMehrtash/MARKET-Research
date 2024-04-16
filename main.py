@@ -47,15 +47,14 @@ if __name__ == "__main__":
     # Get Future Load and Data
     dfHourlyLoad, dfHourlySolar, dfHourlyWind, dfISO, info = getFutureData(ISO=args.ISO, verbose=args.verbose, path='data/forecast/' , 
                                                                            load_rate=args.load_rate, vre_mix=args.vre_mix)
-    numGenerators, totalCap, adjRatios, cap_rate, LOLE = info[0][0], info[1][0], info[2][0], info[3][0], info[4][0]
-    fuelMappingDict = dict(zip(dfISO['Technology'].tolist(), dfISO['Energy Source Code'].tolist()))
+    numGenerators, totalCap, adjRatios, cap_rate, LOLE = info[0][0], info[1][0], info[2], info[3][0], info[4][0]
 
     # Get the Minimum Reserve Requirement for CSC
     capacities = list(dfISO['Nameplate Capacity (MW)'].sort_values(ascending=False))
     MRR = capacities[0] + 0.5 * capacities[1]
     
     # Get the GenCos and CSO
-    genCos =  getGenCos(numGenerators, dfISO, fuelMappingDict)
+    genCos =  getGenCos(numGenerators, dfISO)
     dfCSO = pd.read_csv('data/CSO2023.csv', skiprows=0, index_col=None)
 
     # pdb.set_trace()
@@ -72,7 +71,7 @@ if __name__ == "__main__":
 
             month = pd.to_datetime(dfHourlyLoad.iloc[hour]['Date']).strftime('%B')
             if last_month != month:
-                for gen in genCos: gen.updateCSO(dfCSO, cap_rate, month);
+                for gen in genCos: gen.updateCSO(dfCSO, dfISO, cap_rate, adjRatios, month);
                 last_month = month
                 totalCSO = sum([gen.CapObl for gen in genCos])
 

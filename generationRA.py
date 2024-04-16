@@ -16,23 +16,14 @@ from Market import Market
 dfCSO = pd.read_csv('data/CSO2023.csv', skiprows=0, index_col=None)
 
 
-def getRA(iter, market, genCos, dfLoad, dfSolar, dfWind, cap_rate=1.00):
+def getRA(iter, dfISO, market, genCos, dfLoad, dfSolar, dfWind, cap_rate=1.00, adjRatios=[1.0, 1.0]):
     outageCount = 0
-    last_month = None
     for __ in range(iter):
         for hour in tqdm(range(dfLoad.index.stop - dfLoad.index.start)):
             hourlyLoad = dfLoad.iloc[hour]['Total Load']
             hourlynegativeLoadSolar = dfSolar.iloc[hour]['tot_solar_mwh']
             hourlynegativeLoadWind = dfWind.iloc[hour]['tot_wind_mwh']
             
-            # update CSO base on the month
-            month = pd.to_datetime(dfLoad.iloc[hour]['Date']).strftime('%B')
-            if last_month != month:
-                # a = time.time()
-                for gen in genCos: gen.updateCSO(dfCSO, cap_rate, month);
-                # print(time.time() - a)
-                last_month = month
-
             loads = [hourlyLoad, hourlynegativeLoadSolar, hourlynegativeLoadWind]
             outageCount += int(market.RA(genCos=genCos, load=loads, verbose=False))
 
@@ -71,7 +62,7 @@ if __name__ == "__main__":
     # Get 2023 Gen Data
     dfISO, numGenerators, totalCap, __ = getISO(ISO=args.ISO)
     dfHourlySolar, dfHourlyWind = getHourlyGen(ISO=args.ISO, verbose=args.verbose)
-    fuelMappingDict = dict(zip(dfISO['Technology'].tolist(), dfISO['Energy Source Code'].tolist()))
+    # fuelMappingDict = dict(zip(dfISO['Technology'].tolist(), dfISO['Energy Source Code'].tolist()))
 
     if True:
         # Get 2030 Load
@@ -83,14 +74,15 @@ if __name__ == "__main__":
             print('capacity increase rate:', cap_rate)
             dfISOAdj, totalCapAdj, adjRatios = getFutureGeneratorData(dfISO, cap_rate=cap_rate, vre_mix=args.vre_mix)
             dfHourlySolarAdj, dfHourlyWindAdj = getFutureGenerationData(dfHourlySolar, dfHourlyWind, adjRatios)
+
             
             # Get the GenCos
-            genCos =  getGenCos(numGenerators, dfISOAdj, fuelMappingDict)
-
+            genCos =  getGenCos(numGenerators, dfISOAdj)
+            
             market = Market(MRR=[])
-            RA, lole = getRA(args.markov_cons, market, genCos, dfHourlyLoadAdj, dfHourlySolarAdj, dfHourlyWindAdj, cap_rate=cap_rate)
+            RA, lole = getRA(args.markov_cons, dfISOAdj, market, genCos, dfHourlyLoadAdj, dfHourlySolarAdj, dfHourlyWindAdj, cap_rate=cap_rate, adjRatios=adjRatios)
             if RA is False:
-                cap_rate += 0.05
+                cap_rate += 0.2
 
         # Save to CSV
         infoDict = {'numGenerators':numGenerators, 'totalCap':totalCapAdj, 'adjRatios':adjRatios, 'cap_rate':cap_rate, 'LOLE': lole}

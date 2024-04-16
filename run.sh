@@ -16,14 +16,14 @@ vres="low medium high"
 #         echo "---------------------- Forecast Simulation with load rate: $load_rate and vre mix: $vre"
 #         python3 generationRA.py --ISO ISNE --load-rate $load_rate --vre-mix $vre --markov-cons 5 --verbose False
 #     done
-# done
-# # python3 generationRA.py --ISO ISNE --load-rate high --vre-mix low --markov-cons 1 --verbose False
+# # done
+# python3 generationRA.py --ISO ISNE --load-rate high --vre-mix high --markov-cons 1 --verbose False
 
 
-echo "---------------------- Running PfP Simulation ----------------------"
-python3 main.py --ISO ISNE --load-rate high --vre-mix medium --markov-cons 10 --verbose False 
+# echo "---------------------- Running PfP Simulation ----------------------"
 python3 main.py --ISO ISNE --load-rate high --vre-mix high --markov-cons 10 --verbose False 
-loads="high"
+# python3 main.py --ISO ISNE --load-rate high --vre-mix high --markov-cons 10 --verbose False 
+# loads="high"
 # vres="high"
 # for vre in $vres; do 
 #     for load_rate in $loads; do 

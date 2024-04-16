@@ -1,0 +1,998 @@
+ID,Generating Fuel Type,Fuel Type
+253,Landfill Gas,Gas
+321,Natural Gas,Gas
+322,Natural Gas,Gas
+323,Natural Gas,Gas
+324,Natural Gas,Gas
+326,Natural Gas,Gas
+327,Water at a Conventional Hydroelectric Turbine,Hydro
+328,Water at a Conventional Hydroelectric Turbine,Hydro
+330,Water at a Conventional Hydroelectric Turbine,Hydro
+331,Water at a Conventional Hydroelectric Turbine,Hydro
+335,Water at a Conventional Hydroelectric Turbine,Hydro
+336,Kerosene,Gas
+341,Jet Fuel,Oil
+346,Water at a Conventional Hydroelectric Turbine,Hydro
+348,Water at a Conventional Hydroelectric Turbine,Hydro
+349,Municipal Solid Waste,Waste
+355,Kerosene,Gas
+356,Municipal Solid Waste,Waste
+357,Wood/Wood Waste Solids.,Waste
+358,Water at a Conventional Hydroelectric Turbine,Hydro
+359,Water at a Conventional Hydroelectric Turbine,Hydro
+360,Water at a Conventional Hydroelectric Turbine,Hydro
+362,Water at a Conventional Hydroelectric Turbine,Hydro
+363,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+365,Residual Fuel Oil Bunker C,Oil
+366,Residual Fuel Oil Bunker C,Oil
+367,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+368,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+369,Water at a Conventional Hydroelectric Turbine,Hydro
+370,Kerosene,Gas
+371,Kerosene,Gas
+372,Kerosene,Gas
+375,Natural Gas,Gas
+376,Residual Fuel Oil Bunker C,Gas
+379,Water at a Conventional Hydroelectric Turbine,Hydro
+380,Water at a Conventional Hydroelectric Turbine,Hydro
+382,Kerosene,Gas
+383,Kerosene,Gas
+388,Natural Gas,Gas
+389,Water at a Conventional Hydroelectric Turbine,Hydro
+392,Natural Gas,Gas
+393,Water at a Conventional Hydroelectric Turbine,Hydro
+395,Kerosene,Gas
+396,Kerosene,Gas
+397,Kerosene,Gas
+398,Kerosene,Gas
+399,Kerosene,Gas
+400,Kerosene,Gas
+401,Water at a Conventional Hydroelectric Turbine,Hydro
+405,Water at a Conventional Hydroelectric Turbine,Hydro
+410,Water at a Conventional Hydroelectric Turbine,Hydro
+412,Water at a Conventional Hydroelectric Turbine,Hydro
+413,Water at a Conventional Hydroelectric Turbine,Hydro
+417,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+418,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+419,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+420,Kerosene,Gas
+421,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+424,Water at a Conventional Hydroelectric Turbine,Hydro
+426,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+427,Water at a Conventional Hydroelectric Turbine,Hydro
+432,Water at a Conventional Hydroelectric Turbine,Hydro
+433,Water at a Conventional Hydroelectric Turbine,Hydro
+434,Water at a Conventional Hydroelectric Turbine,Hydro
+435,Water at a Conventional Hydroelectric Turbine,Hydro
+436,Wood/Wood Waste Solids.,Waste
+440,Water at a Conventional Hydroelectric Turbine,Hydro
+445,Wood/Wood Waste Solids.,Waste
+446,Wood/Wood Waste Solids.,Waste
+449,Water at a Conventional Hydroelectric Turbine,Hydro
+452,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+457,Water at a Conventional Hydroelectric Turbine,Hydro
+460,Water at a Conventional Hydroelectric Turbine,Hydro
+462,Municipal Solid Waste,Waste
+463,Wood/Wood Waste Solids.,Waste
+464,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+465,Water at a Conventional Hydroelectric Turbine,Hydro
+467,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+468,Water at a Conventional Hydroelectric Turbine,Hydro
+472,Kerosene,Gas
+473,Water at a Conventional Hydroelectric Turbine,Hydro
+474,Wood/Wood Waste Solids.,Waste
+478,Jet Fuel,Oil
+480,Residual Fuel Oil Bunker C,Oil
+482,Residual Fuel Oil Bunker C,Oil
+484,"Nuclear Uranium, Plutonium, Thorium",Nuclear
+485,"Nuclear Uranium, Plutonium, Thorium",Nuclear
+486,Natural Gas,Gas
+487,Water at a Conventional Hydroelectric Turbine,Hydro
+489,Anthracite Coal and Bituminous Coal,Coal
+490,Anthracite Coal and Bituminous Coal,Coal
+492,Kerosene,Gas
+493,Residual Fuel Oil Bunker C,Oil
+494,Residual Fuel Oil Bunker C,Oil
+495,Water at a Conventional Hydroelectric Turbine,Hydro
+496,Water at a Conventional Hydroelectric Turbine,Hydro
+497,Natural Gas,Gas
+507,Natural Gas,Gas
+508,Residual Fuel Oil Bunker C,Oil
+513,Residual Fuel Oil Bunker C,Oil
+515,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+527,Municipal Solid Waste,Waste
+528,Natural Gas,Gas
+529,Natural Gas,Gas
+532,Water at a Conventional Hydroelectric Turbine,Hydro
+536,Municipal Solid Waste,Waste
+539,Water at a Conventional Hydroelectric Turbine,Hydro
+540,Natural Gas,Gas
+541,Water at a Conventional Hydroelectric Turbine,Hydro
+542,Municipal Solid Waste,Waste
+546,Municipal Solid Waste,Waste
+547,Municipal Solid Waste,Waste
+549,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+555,"Nuclear Uranium, Plutonium, Thorium",Nuclear
+556,Anthracite Coal and Bituminous Coal,Coal
+557,Wood/Wood Waste Solids.,Waste
+558,Anthracite Coal and Bituminous Coal,Coal
+559,Kerosene,Gas
+561,Water at a Conventional Hydroelectric Turbine,Hydro
+562,Municipal Solid Waste,Waste
+563,Municipal Solid Waste,Waste
+564,Municipal Solid Waste,Waste
+565,Water at a Conventional Hydroelectric Turbine,Hydro
+566,Water at a Conventional Hydroelectric Turbine,Hydro
+567,Water at a Conventional Hydroelectric Turbine,Hydro
+569,Water at a Conventional Hydroelectric Turbine,Hydro
+570,Water at a Conventional Hydroelectric Turbine,Hydro
+580,Municipal Solid Waste,Waste
+581,Municipal Solid Waste,Waste
+583,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+584,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+587,Water at a Conventional Hydroelectric Turbine,Hydro
+590,Wood/Wood Waste Solids.,Waste
+591,Wood/Wood Waste Solids.,Waste
+592,Wood/Wood Waste Solids.,Waste
+595,Kerosene,Gas
+596,Kerosene,Gas
+598,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+599,Water at a Conventional Hydroelectric Turbine,Hydro
+612,Natural Gas,Gas
+613,Natural Gas,Gas
+614,Water at a Conventional Hydroelectric Turbine,Hydro
+616,Water at a Conventional Hydroelectric Turbine,Hydro
+617,Water at a Conventional Hydroelectric Turbine,Hydro
+618,Wood/Wood Waste Solids.,Waste
+619,Kerosene,Gas
+620,Water at a Conventional Hydroelectric Turbine,Hydro
+621,Water at a Conventional Hydroelectric Turbine,Hydro
+622,Water at a Conventional Hydroelectric Turbine,Hydro
+624,Municipal Solid Waste,Waste
+625,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+626,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+627,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+628,Kerosene,Gas
+630,Kerosene,Gas
+633,Natural Gas,Gas
+636,Water at a Conventional Hydroelectric Turbine,Hydro
+637,Water at a Conventional Hydroelectric Turbine,Hydro
+638,Water at a Conventional Hydroelectric Turbine,Hydro
+641,Residual Fuel Oil Bunker C,Oil
+642,Residual Fuel Oil Bunker C,Oil
+715,Landfill Gas,Gas
+737,Water at a Conventional Hydroelectric Turbine,Hydro
+739,Water at a Conventional Hydroelectric Turbine,Hydro
+754,Water at a Conventional Hydroelectric Turbine,Hydro
+755,Water at a Conventional Hydroelectric Turbine,Hydro
+757,Water at a Conventional Hydroelectric Turbine,Hydro
+759,Water at a Conventional Hydroelectric Turbine,Hydro
+760,Water at a Conventional Hydroelectric Turbine,Hydro
+761,Water at a Conventional Hydroelectric Turbine,Hydro
+766,Water at a Conventional Hydroelectric Turbine,Hydro
+767,Municipal Solid Waste,Waste
+768,Water at a Conventional Hydroelectric Turbine,Hydro
+769,Water at a Conventional Hydroelectric Turbine,Hydro
+772,Water at a Conventional Hydroelectric Turbine,Hydro
+774,Water at a Conventional Hydroelectric Turbine,Hydro
+781,Water at a Conventional Hydroelectric Turbine,Hydro
+786,Water at a Conventional Hydroelectric Turbine,Hydro
+789,Water at a Conventional Hydroelectric Turbine,Hydro
+792,Water at a Conventional Hydroelectric Turbine,Hydro
+793,Water at a Conventional Hydroelectric Turbine,Hydro
+794,Water at a Conventional Hydroelectric Turbine,Hydro
+795,Water at a Conventional Hydroelectric Turbine,Hydro
+796,Water at a Conventional Hydroelectric Turbine,Hydro
+797,Water at a Conventional Hydroelectric Turbine,Hydro
+798,Water at a Conventional Hydroelectric Turbine,Hydro
+800,Water at a Conventional Hydroelectric Turbine,Hydro
+801,Water at a Conventional Hydroelectric Turbine,Hydro
+802,Water at a Conventional Hydroelectric Turbine,Hydro
+803,Water at a Conventional Hydroelectric Turbine,Hydro
+804,Water at a Conventional Hydroelectric Turbine,Hydro
+806,Water at a Conventional Hydroelectric Turbine,Hydro
+807,Water at a Conventional Hydroelectric Turbine,Hydro
+808,Water at a Conventional Hydroelectric Turbine,Hydro
+810,Water at a Conventional Hydroelectric Turbine,Hydro
+811,Water at a Conventional Hydroelectric Turbine,Hydro
+813,Water at a Conventional Hydroelectric Turbine,Hydro
+824,Water at a Conventional Hydroelectric Turbine,Hydro
+827,Wind,Wind
+841,Water at a Conventional Hydroelectric Turbine,Hydro
+842,Water at a Conventional Hydroelectric Turbine,Hydro
+845,Water at a Conventional Hydroelectric Turbine,Hydro
+846,Water at a Conventional Hydroelectric Turbine,Hydro
+849,Water at a Conventional Hydroelectric Turbine,Hydro
+850,Water at a Conventional Hydroelectric Turbine,Hydro
+851,Water at a Conventional Hydroelectric Turbine,Hydro
+852,Water at a Conventional Hydroelectric Turbine,Hydro
+854,Water at a Conventional Hydroelectric Turbine,Hydro
+855,Water at a Conventional Hydroelectric Turbine,Hydro
+856,Water at a Conventional Hydroelectric Turbine,Hydro
+857,Water at a Conventional Hydroelectric Turbine,Hydro
+859,Water at a Conventional Hydroelectric Turbine,Hydro
+860,Water at a Conventional Hydroelectric Turbine,Hydro
+861,Water at a Conventional Hydroelectric Turbine,Hydro
+862,Water at a Conventional Hydroelectric Turbine,Hydro
+863,Water at a Conventional Hydroelectric Turbine,Hydro
+864,Water at a Conventional Hydroelectric Turbine,Hydro
+865,Water at a Conventional Hydroelectric Turbine,Hydro
+866,Water at a Conventional Hydroelectric Turbine,Hydro
+867,Water at a Conventional Hydroelectric Turbine,Hydro
+868,Water at a Conventional Hydroelectric Turbine,Hydro
+869,Water at a Conventional Hydroelectric Turbine,Hydro
+870,Water at a Conventional Hydroelectric Turbine,Hydro
+871,Water at a Conventional Hydroelectric Turbine,Hydro
+872,Water at a Conventional Hydroelectric Turbine,Hydro
+873,Water at a Conventional Hydroelectric Turbine,Hydro
+874,Water at a Conventional Hydroelectric Turbine,Hydro
+875,Water at a Conventional Hydroelectric Turbine,Hydro
+876,Water at a Conventional Hydroelectric Turbine,Hydro
+877,Water at a Conventional Hydroelectric Turbine,Hydro
+878,Water at a Conventional Hydroelectric Turbine,Hydro
+879,Water at a Conventional Hydroelectric Turbine,Hydro
+882,Water at a Conventional Hydroelectric Turbine,Hydro
+883,Water at a Conventional Hydroelectric Turbine,Hydro
+884,Water at a Conventional Hydroelectric Turbine,Hydro
+886,Water at a Conventional Hydroelectric Turbine,Hydro
+887,Water at a Conventional Hydroelectric Turbine,Hydro
+888,Water at a Conventional Hydroelectric Turbine,Hydro
+889,Water at a Conventional Hydroelectric Turbine,Hydro
+890,Water at a Conventional Hydroelectric Turbine,Hydro
+891,Water at a Conventional Hydroelectric Turbine,Hydro
+892,Water at a Conventional Hydroelectric Turbine,Hydro
+893,Water at a Conventional Hydroelectric Turbine,Hydro
+894,Water at a Conventional Hydroelectric Turbine,Hydro
+895,Water at a Conventional Hydroelectric Turbine,Hydro
+897,Water at a Conventional Hydroelectric Turbine,Hydro
+898,Water at a Conventional Hydroelectric Turbine,Hydro
+900,Water at a Conventional Hydroelectric Turbine,Hydro
+901,Water at a Conventional Hydroelectric Turbine,Hydro
+902,Water at a Conventional Hydroelectric Turbine,Hydro
+903,Water at a Conventional Hydroelectric Turbine,Hydro
+904,Water at a Conventional Hydroelectric Turbine,Hydro
+905,Water at a Conventional Hydroelectric Turbine,Hydro
+906,Water at a Conventional Hydroelectric Turbine,Hydro
+908,Water at a Conventional Hydroelectric Turbine,Hydro
+909,Water at a Conventional Hydroelectric Turbine,Hydro
+910,Water at a Conventional Hydroelectric Turbine,Hydro
+911,Water at a Conventional Hydroelectric Turbine,Hydro
+913,Water at a Conventional Hydroelectric Turbine,Hydro
+919,Water at a Conventional Hydroelectric Turbine,Hydro
+925,Water at a Conventional Hydroelectric Turbine,Hydro
+926,Water at a Conventional Hydroelectric Turbine,Hydro
+928,Water at a Conventional Hydroelectric Turbine,Hydro
+931,Water at a Conventional Hydroelectric Turbine,Hydro
+932,Water at a Conventional Hydroelectric Turbine,Hydro
+933,Water at a Conventional Hydroelectric Turbine,Hydro
+935,Water at a Conventional Hydroelectric Turbine,Hydro
+941,Water at a Conventional Hydroelectric Turbine,Hydro
+943,Landfill Gas,Gas
+948,Water at a Conventional Hydroelectric Turbine,Hydro
+950,Water at a Conventional Hydroelectric Turbine,Hydro
+951,Water at a Conventional Hydroelectric Turbine,Hydro
+957,Water at a Conventional Hydroelectric Turbine,Hydro
+969,Water at a Conventional Hydroelectric Turbine,Hydro
+970,Water at a Conventional Hydroelectric Turbine,Hydro
+978,"Other Biomass Gas. Includes digester gas, methane, and other biomass gasses.",Other
+1005,Natural Gas,Gas
+1030,Kerosene,Gas
+1031,Kerosene,Gas
+1032,Natural Gas,Gas
+1034,Water at a Conventional Hydroelectric Turbine,Hydro
+1035,Water at a Conventional Hydroelectric Turbine,Hydro
+1047,Water at a Conventional Hydroelectric Turbine,Hydro
+1048,Water at a Conventional Hydroelectric Turbine,Hydro
+1049,Water at a Conventional Hydroelectric Turbine,Hydro
+1050,Water at a Conventional Hydroelectric Turbine,Hydro
+1054,Water at a Conventional Hydroelectric Turbine,Hydro
+1057,Water at a Conventional Hydroelectric Turbine,Hydro
+1061,Water at a Conventional Hydroelectric Turbine,Hydro
+1062,Water at a Conventional Hydroelectric Turbine,Hydro
+1086,Natural Gas,Gas
+1109,Municipal Solid Waste,Waste
+1113,Water at a Conventional Hydroelectric Turbine,Hydro
+1114,Water at a Conventional Hydroelectric Turbine,Hydro
+1117,Water at a Conventional Hydroelectric Turbine,Hydro
+1119,Water at a Conventional Hydroelectric Turbine,Hydro
+1122,Water at a Conventional Hydroelectric Turbine,Hydro
+1185,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+1186,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+1187,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+1209,Landfill Gas,Gas
+1210,Natural Gas,Gas
+1216,Natural Gas,Gas
+1221,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+1226,Natural Gas,Gas
+1255,Natural Gas,Gas
+1258,Water at a Conventional Hydroelectric Turbine,Hydro
+1270,Water at a Conventional Hydroelectric Turbine,Hydro
+1273,Water at a Conventional Hydroelectric Turbine,Hydro
+1286,Natural Gas,Gas
+1287,Natural Gas,Gas
+1288,Natural Gas,Gas
+1342,Natural Gas,Gas
+1343,Natural Gas,Gas
+1344,Natural Gas,Gas
+1345,Natural Gas,Gas
+1368,Water at a Conventional Hydroelectric Turbine,Hydro
+1376,Natural Gas,Gas
+1377,Natural Gas,Gas
+1378,Natural Gas,Gas
+1379,Natural Gas,Gas
+1380,Natural Gas,Gas
+1385,Natural Gas,Gas
+1386,Natural Gas,Gas
+1412,Natural Gas,Gas
+1415,Natural Gas,Gas
+1432,Landfill Gas,Gas
+1478,Natural Gas,Gas
+1572,Municipal Solid Waste,Waste
+1616,Natural Gas,Gas
+1625,Natural Gas,Gas
+1630,Natural Gas,Gas
+1649,Natural Gas,Gas
+1656,Wind,Wind
+1672,Natural Gas,Gas
+1691,Natural Gas,Gas
+1693,Natural Gas,Gas
+1694,Natural Gas,Gas
+2278,Water at a Conventional Hydroelectric Turbine,Hydro
+2279,Water at a Conventional Hydroelectric Turbine,Hydro
+2280,Water at a Conventional Hydroelectric Turbine,Hydro
+2281,Water at a Conventional Hydroelectric Turbine,Hydro
+2282,Water at a Conventional Hydroelectric Turbine,Hydro
+2283,Water at a Conventional Hydroelectric Turbine,Hydro
+2284,Water at a Conventional Hydroelectric Turbine,Hydro
+2285,Water at a Conventional Hydroelectric Turbine,Hydro
+2286,Water at a Conventional Hydroelectric Turbine,Hydro
+2287,Water at a Conventional Hydroelectric Turbine,Hydro
+2288,Water at a Conventional Hydroelectric Turbine,Hydro
+2290,Water at a Conventional Hydroelectric Turbine,Hydro
+2292,Water at a Conventional Hydroelectric Turbine,Hydro
+2425,Municipal Solid Waste,Waste
+2426,Water at a Conventional Hydroelectric Turbine,Hydro
+2431,Water at a Conventional Hydroelectric Turbine,Hydro
+2432,Water at a Conventional Hydroelectric Turbine,Hydro
+2433,Wood/Wood Waste Solids.,Waste
+2462,"Other Biomass Gas. Includes digester gas, methane, and other biomass gasses.",Other
+2466,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Oil
+2467,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Oil
+2468,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Oil
+2469,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Oil
+2470,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Oil
+10401,Water at a Conventional Hydroelectric Turbine,Hydro
+10403,Water at a Conventional Hydroelectric Turbine,Hydro
+10406,Water at a Conventional Hydroelectric Turbine,Hydro
+10409,Water at a Conventional Hydroelectric Turbine,Hydro
+10424,Water at a Conventional Hydroelectric Turbine,Hydro
+10615,"Other Biomass Gas. Includes digester gas, methane, and other biomass gasses.",Other
+10770,Water at a Conventional Hydroelectric Turbine,Hydro
+10801,Landfill Gas,Gas
+11052,Landfill Gas,Gas
+11126,Water at a Conventional Hydroelectric Turbine,Hydro
+11408,Wind,Wind
+11424,Water at a Conventional Hydroelectric Turbine,Hydro
+11842,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+11925,Solar,Solar
+12108,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+12180,"Other Biomass Gas. Includes digester gas, methane, and other biomass gasses.",Other
+12274,"Other Biomass Gas. Includes digester gas, methane, and other biomass gasses.",Other
+12323,Landfill Gas,Gas
+12500,Natural Gas,Gas
+12504,Kerosene,Gas
+12505,Kerosene,Gas
+12509,Landfill Gas,Gas
+12510,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+12511,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+12521,Natural Gas,Gas
+12524,Kerosene,Gas
+12526,Natural Gas,Gas
+12530,Wind,Wind
+12551,Wind,Wind
+12564,Natural Gas,Gas
+13669,Landfill Gas,Gas
+13673,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+13675,Natural Gas,Gas
+13703,Natural Gas,Gas
+13704,Natural Gas,Gas
+13705,Natural Gas,Gas
+13975,Water at a Conventional Hydroelectric Turbine,Hydro
+14087,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Gas
+14217,Water at a Conventional Hydroelectric Turbine,Hydro
+14218,Water at a Conventional Hydroelectric Turbine,Hydro
+14219,Water at a Conventional Hydroelectric Turbine,Hydro
+14220,Water at a Conventional Hydroelectric Turbine,Hydro
+14271,Landfill Gas,Gas
+14595,Wind,Wind
+14599,Landfill Gas,Gas
+14610,Wind,Wind
+14614,Natural Gas,Gas
+14623,Water at a Conventional Hydroelectric Turbine,Hydro
+14652,Wind,Wind
+14660,Wind,Wind
+14661,Wind,Wind
+14663,Landfill Gas,Gas
+14665,Wind,Wind
+14706,Natural Gas,Gas
+15415,Natural Gas,Gas
+15477,Kerosene,Gas
+15509,Wood/Wood Waste Solids.,Waste
+16296,Water at a Conventional Hydroelectric Turbine,Hydro
+16523,Water at a Conventional Hydroelectric Turbine,Hydro
+16525,Water at a Conventional Hydroelectric Turbine,Hydro
+16631,Solar,Solar
+16640,Solar,Solar
+16642,Solar,Solar
+16643,Solar,Solar
+16644,Solar,Solar
+16653,Wood/Wood Waste Solids.,Waste
+16659,Wind,Wind
+16688,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Oil
+16737,Natural Gas,Gas
+16738,Natural Gas,Gas
+16750,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Oil
+16752,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Oil
+17359,Water at a Conventional Hydroelectric Turbine,Hydro
+35442,Landfill Gas,Gas
+35485,Landfill Gas,Gas
+35555,Wind,Wind
+35593,Water at a Conventional Hydroelectric Turbine,Hydro
+35594,Water at a Conventional Hydroelectric Turbine,Hydro
+35656,Water at a Conventional Hydroelectric Turbine,Hydro
+35657,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Oil
+35658,Water at a Conventional Hydroelectric Turbine,Hydro
+35693,Wind,Wind
+35728,Landfill Gas,Gas
+35979,Wind,Wind
+37040,Natural Gas,Gas
+37050,Wind,Wind
+37072,Wind,Wind
+37077,Water at a Conventional Hydroelectric Turbine,Hydro
+37105,Wind,Wind
+37120,Water at a Conventional Hydroelectric Turbine,Hydro
+38078,Solar,Solar
+38089,Natural Gas,Gas
+38114,Solar,Solar
+38115,Solar,Solar
+38173,Wind,Wind
+38178,Landfill Gas,Gas
+38181,Solar,Solar
+38206,Natural Gas,Gas
+38249,Solar,Solar
+38250,Solar,Solar
+38252,Water at a Conventional Hydroelectric Turbine,Hydro
+38278,Natural Gas,Gas
+38287,Solar,Solar
+38289,Natural Gas,Gas
+38297,Natural Gas,Gas
+38302,Solar,Solar
+38310,Natural Gas,Gas
+38372,Solar,Solar
+38373,Solar,Solar
+38374,Solar,Solar
+38375,Solar,Solar
+38376,Solar,Solar
+38378,Solar,Solar
+38380,Solar,Solar
+38381,Solar,Solar
+38421,Wind,Wind
+38437,Wind,Wind
+38438,Wind,Wind
+38440,Solar,Solar
+38441,Natural Gas,Gas
+38442,Natural Gas,Gas
+38475,Wind,Wind
+38480,Solar,Solar
+38494,Solar,Solar
+38495,Wind,Wind
+38500,Solar,Solar
+38510,Solar,Solar
+38527,Solar,Solar
+38528,Solar,Solar
+38530,Solar,Solar
+38531,Solar,Solar
+38532,Solar,Solar
+38533,Solar,Solar
+38534,Solar,Solar
+38538,Solar,Solar
+38539,Solar,Solar
+38543,Solar,Solar
+38544,Solar,Solar
+38545,Solar,Solar
+38548,Solar,Solar
+38551,Solar,Solar
+38553,Wind,Wind
+38555,Solar,Solar
+38556,Solar,Solar
+38558,Solar,Solar
+38559,Solar,Solar
+38560,Solar,Solar
+38561,Solar,Solar
+38562,Solar,Solar
+38565,Solar,Solar
+38567,Solar,Solar
+38574,Solar,Solar
+38575,Solar,Solar
+38576,Solar,Solar
+38577,Wind,Wind
+38579,Solar,Solar
+38580,Solar,Solar
+38581,Solar,Solar
+38582,Solar,Solar
+38583,Solar,Solar
+38584,Solar,Solar
+38655,Solar,Solar
+38657,Solar,Solar
+38661,Solar,Solar
+38663,Natural Gas,Gas
+38669,Wind,Wind
+38692,Natural Gas,Gas
+38696,Solar,Solar
+38698,Solar,Solar
+38699,Solar,Solar
+38700,Solar,Solar
+38701,Solar,Solar
+38702,Solar,Solar
+38704,Solar,Solar
+38706,Solar,Solar
+38707,Solar,Solar
+38708,Solar,Solar
+38709,Solar,Solar
+38738,Wind,Wind
+38757,Natural Gas,Gas
+38760,"Distillate Fuel Oil - including Diesel, No. 1, 2, and 4",Oil
+38795,Solar,Solar
+38815,Solar,Solar
+38823,Solar,Solar
+38831,Solar,Solar
+38833,Solar,Solar
+38834,Solar,Solar
+38835,Solar,Solar
+38836,Solar,Solar
+38841,Solar,Solar
+38842,Solar,Solar
+38843,Solar,Solar
+38853,Solar,Solar
+38855,Solar,Solar
+38858,Solar,Solar
+38860,Solar,Solar
+38861,Solar,Solar
+38862,Solar,Solar
+38863,Solar,Solar
+38864,Solar,Solar
+38865,Solar,Solar
+38868,Solar,Solar
+38869,Solar,Solar
+38881,Solar,Solar
+38883,Solar,Solar
+38884,Solar,Solar
+38885,Solar,Solar
+38888,Solar,Solar
+38889,Solar,Solar
+38943,Wood/Wood Waste Solids.,Waste
+38944,Solar,Solar
+38945,Solar,Solar
+38961,Solar,Solar
+38962,Solar,Solar
+38963,Solar,Solar
+38970,Solar,Solar
+38973,Solar,Solar
+40595,Solar,Solar
+40613,Solar,Solar
+40615,Solar,Solar
+40616,Solar,Solar
+40617,Solar,Solar
+40618,Solar,Solar
+40619,Solar,Solar
+40620,Solar,Solar
+40621,Solar,Solar
+40622,Solar,Solar
+40623,Solar,Solar
+40624,Solar,Solar
+40625,Solar,Solar
+40626,Solar,Solar
+40627,Solar,Solar
+40629,Solar,Solar
+40630,Solar,Solar
+40631,Solar,Solar
+40632,Solar,Solar
+40653,Electricity used for Energy Storage,Other
+40654,Solar,Solar
+40655,Solar,Solar
+40656,Solar,Solar
+40658,Wind,Wind
+40659,Solar,Solar
+40664,Solar,Solar
+40667,Solar,Solar
+40675,Solar,Solar
+40676,Solar,Solar
+40698,Solar,Solar
+40700,Solar,Solar
+40732,Solar,Solar
+40736,Solar,Solar
+40744,Solar,Solar
+40746,Solar,Solar
+40749,Solar,Solar
+40751,Solar,Solar
+40765,Solar,Solar
+40766,Solar,Solar
+40767,Solar,Solar
+40768,Solar,Solar
+40769,Solar,Solar
+40770,Solar,Solar
+40771,Solar,Solar
+40772,Solar,Solar
+40773,Solar,Solar
+40774,Solar,Solar
+40775,Solar,Solar
+40776,Solar,Solar
+40777,Solar,Solar
+40778,Solar,Solar
+40786,Solar,Solar
+40789,Solar,Solar
+40797,Solar,Solar
+355,Kerosene,Gas
+396,Kerosene,Gas
+420,Kerosene,Gas
+478,Jet Fuel,Oil
+480,Residual Fuel Oil Bunker C,Oil
+528,Natural Gas,Gas
+529,Natural Gas,Gas
+595,Kerosene,Gas
+38824,Solar,Solar
+38825,Solar,Solar
+38826,Solar,Solar
+38838,Solar,Solar
+38848,Solar,Solar
+38849,Solar,Solar
+38892,Solar,Solar
+38894,Solar,Solar
+40658,Wind,Wind
+40668,Wood/Wood Waste Solids.,Waste
+40708,Solar,Solar
+40712,Solar,Solar
+40716,Solar,Solar
+40729,Electricity used for Energy Storage,Other
+40747,Solar,Solar
+40750,Natural Gas,Gas
+40884,Electricity used for Energy Storage,Other
+40885,Electricity used for Energy Storage,Other
+40886,Solar,Solar
+40889,Wind,Wind
+40893,Solar,Solar
+40894,Solar,Solar
+40896,Solar,Solar
+40905,Electricity used for Energy Storage,Other
+40906,Natural Gas,Gas
+40907,Electricity used for Energy Storage,Other
+40908,Electricity used for Energy Storage,Other
+40912,Electricity used for Energy Storage,Other
+40925,Solar,Solar
+40926,Solar,Solar
+40927,Solar,Solar
+40931,Solar,Solar
+40932,Solar,Solar
+40933,Solar,Solar
+40936,Electricity used for Energy Storage,Other
+40937,Electricity used for Energy Storage,Other
+40938,Electricity used for Energy Storage,Other
+40941,Electricity used for Energy Storage,Other
+40942,Electricity used for Energy Storage,Other
+40943,Electricity used for Energy Storage,Other
+40946,Solar,Solar
+40947,Solar,Solar
+40948,Solar,Solar
+40949,Solar,Solar
+40950,Solar,Solar
+40951,Solar,Solar
+40952,Solar,Solar
+40953,Solar,Solar
+40954,Solar,Solar
+40957,Solar,Solar
+40960,Solar,Solar
+40964,Solar,Solar
+40970,Solar,Solar
+40989,Solar,Solar
+40996,Solar,Solar
+40997,Solar,Solar
+40998,Solar,Solar
+40999,Solar,Solar
+41000,Solar,Solar
+41001,Solar,Solar
+41002,Solar,Solar
+41003,Solar,Solar
+41006,Solar,Solar
+41007,Solar,Solar
+41009,Solar,Solar
+41012,Solar,Solar
+41013,Electricity used for Energy Storage,Other
+41015,Electricity used for Energy Storage,Other
+41020,Solar,Solar
+41021,Solar,Solar
+41025,Solar,Solar
+41029,Solar,Solar
+41030,Solar,Solar
+41031,Solar,Solar
+41032,Solar,Solar
+41033,Solar,Solar
+41034,Solar,Solar
+41035,Solar,Solar
+41036,Solar,Solar
+41037,Solar,Solar
+41038,Solar,Solar
+41039,Solar,Solar
+41040,Solar,Solar
+41041,Solar,Solar
+41042,Solar,Solar
+41043,Solar,Solar
+41044,Solar,Solar
+41045,Solar,Solar
+41046,Solar,Solar
+41047,Solar,Solar
+41048,Solar,Solar
+41050,Solar,Solar
+41051,Solar,Solar
+41053,Solar,Solar
+41054,Solar,Solar
+41056,Solar,Solar
+41059,Solar,Solar
+41060,Solar,Solar
+41061,Solar,Solar
+41062,Solar,Solar
+41063,Solar,Solar
+41064,Solar,Solar
+41065,Solar,Solar
+41067,Electricity used for Energy Storage,Other
+41072,Solar,Solar
+41078,Solar,Solar
+41080,Solar,Solar
+41081,Solar,Solar
+41082,Solar,Solar
+41083,Solar,Solar
+41084,Solar,Solar
+41085,Solar,Solar
+41086,Solar,Solar
+41087,Solar,Solar
+41088,Solar,Solar
+41089,Solar,Solar
+41090,Solar,Solar
+41091,Solar,Solar
+41092,Solar,Solar
+41093,Solar,Solar
+41097,Solar,Solar
+41098,Solar,Solar
+41104,Solar,Solar
+41105,Solar,Solar
+41107,Solar,Solar
+41108,Solar,Solar
+41110,Solar,Solar
+41111,Solar,Solar
+41112,Solar,Solar
+41113,Solar,Solar
+41117,Solar,Solar
+41120,Solar,Solar
+41121,Solar,Solar
+41123,Solar,Solar
+41125,Solar,Solar
+41126,Solar,Solar
+41128,Solar,Solar
+41129,Solar,Solar
+41130,Solar,Solar
+41131,Solar,Solar
+41132,Solar,Solar
+41133,Solar,Solar
+41134,Solar,Solar
+41135,Solar,Solar
+41136,Solar,Solar
+41137,Electricity used for Energy Storage,Other
+41139,Solar,Solar
+41140,Solar,Solar
+41141,Solar,Solar
+41142,Solar,Solar
+41143,Solar,Solar
+41144,Solar,Solar
+41145,Solar,Solar
+41146,Solar,Solar
+41147,Solar,Solar
+41148,Solar,Solar
+41149,Solar,Solar
+41150,Solar,Solar
+41151,Solar,Solar
+41152,Solar,Solar
+41153,Solar,Solar
+41154,Solar,Solar
+41155,Electricity used for Energy Storage,Other
+41159,Solar,Solar
+41160,Solar,Solar
+41162,Solar,Solar
+41164,Solar,Solar
+41173,Solar,Solar
+41174,Solar,Solar
+41175,Solar,Solar
+41176,Solar,Solar
+41177,Solar,Solar
+41179,Solar,Solar
+41181,Solar,Solar
+41182,Solar,Solar
+41183,Solar,Solar
+41184,Solar,Solar
+41185,Solar,Solar
+41186,Solar,Solar
+41187,Solar,Solar
+41188,Solar,Solar
+41189,Solar,Solar
+41190,Solar,Solar
+41191,Solar,Solar
+41192,Solar,Solar
+41193,Solar,Solar
+41194,Solar,Solar
+41195,Solar,Solar
+41196,Solar,Solar
+41197,Solar,Solar
+41198,Solar,Solar
+41199,Solar,Solar
+41200,Solar,Solar
+41201,Solar,Solar
+41202,Solar,Solar
+41203,Solar,Solar
+41204,Solar,Solar
+41207,Solar,Solar
+41209,Solar,Solar
+41211,Solar,Solar
+41213,Solar,Solar
+41214,Solar,Solar
+41216,Solar,Solar
+41217,Solar,Solar
+41218,Solar,Solar
+41219,Solar,Solar
+41220,Solar,Solar
+41221,Solar,Solar
+41222,Solar,Solar
+41225,Solar,Solar
+41226,Electricity used for Energy Storage,Other
+41228,Solar,Solar
+41231,Solar,Solar
+41234,Solar,Solar
+41237,Solar,Solar
+41238,Solar,Solar
+41241,Solar,Solar
+41242,Solar,Solar
+41244,Solar,Solar
+41245,Solar,Solar
+41246,Solar,Solar
+41248,Solar,Solar
+41249,Solar,Solar
+41250,Solar,Solar
+41251,Solar,Solar
+41254,Solar,Solar
+41256,Solar,Solar
+41257,Solar,Solar
+41258,Solar,Solar
+41259,Solar,Solar
+41260,Solar,Solar
+41261,Solar,Solar
+41262,Solar,Solar
+41263,Solar,Solar
+41264,Solar,Solar
+41265,Solar,Solar
+41266,Solar,Solar
+41267,Solar,Solar
+41268,Solar,Solar
+41269,Solar,Solar
+41270,Solar,Solar
+41271,Solar,Solar
+41272,Solar,Solar
+41273,Solar,Solar
+41274,Solar,Solar
+41275,Solar,Solar
+41276,Solar,Solar
+41277,Solar,Solar
+41278,Solar,Solar
+41279,Solar,Solar
+41280,Solar,Solar
+41281,Solar,Solar
+41282,Solar,Solar
+41283,Solar,Solar
+41291,Solar,Solar
+41295,Solar,Solar
+41297,Solar,Solar
+41298,Solar,Solar
+41299,Solar,Solar
+41300,Solar,Solar
+41301,Solar,Solar
+41302,Solar,Solar
+41304,Solar,Solar
+41306,Electricity used for Energy Storage,Other
+41309,Solar,Solar
+41311,Solar,Solar
+41312,Solar,Solar
+41313,Solar,Solar
+41314,Solar,Solar
+41315,Electricity used for Energy Storage,Other
+41316,Solar,Solar
+41317,Solar,Solar
+41318,Solar,Solar
+41319,Solar,Solar
+41320,Solar,Solar
+41321,Solar,Solar
+41322,Solar,Solar
+41324,Solar,Solar
+41326,Solar,Solar
+41327,Electricity used for Energy Storage,Other
+41328,Solar,Solar
+41329,Solar,Solar
+41330,Solar,Solar
+41332,Solar,Solar
+41333,Solar,Solar
+41334,Solar,Solar
+41335,Solar,Solar
+41336,Solar,Solar
+41337,Solar,Solar
+41338,Solar,Solar
+41339,Solar,Solar
+41340,Solar,Solar
+41341,Solar,Solar
+41342,Solar,Solar
+41343,Solar,Solar
+41345,Solar,Solar
+41346,Solar,Solar
+41347,Solar,Solar
+41348,Solar,Solar
+41349,Solar,Solar
+41350,Solar,Solar
+41351,Solar,Solar
+41352,Solar,Solar
+41353,Solar,Solar
+41354,Solar,Solar
+41355,Solar,Solar
+41356,Solar,Solar
+41357,Solar,Solar
+41358,Solar,Solar
+41359,Solar,Solar
+41360,Solar,Solar
+41361,Solar,Solar
+41363,Solar,Solar
+41364,Solar,Solar
+41366,Solar,Solar
+41367,Solar,Solar
+41368,Solar,Solar
+41370,Solar,Solar
+41371,Solar,Solar
+41372,Solar,Solar
+41374,Solar,Solar
+41376,Solar,Solar
+41378,Solar,Solar
+41380,Solar,Solar
+41383,Solar,Solar
+41384,Solar,Solar
+41385,Solar,Solar
+41387,Solar,Solar
+41389,Solar,Solar
+41393,Solar,Solar
+41395,Solar,Solar
+41406,Solar,Solar
+41407,Solar,Solar
+41409,Solar,Solar
+41413,Solar,Solar
+41417,Solar,Solar
+41419,Solar,Solar
+41420,Solar,Solar
+41421,Solar,Solar
+41422,Solar,Solar
+41423,Solar,Solar
+41424,Solar,Solar
+41425,Solar,Solar
+41427,Solar,Solar
+41429,Solar,Solar
+41430,Solar,Solar
+41434,Solar,Solar
+41435,Solar,Solar
+41436,Solar,Solar
+41438,Solar,Solar
+41453,Solar,Solar
+41476,Solar,Solar
+41477,Solar,Solar
+41494,Solar,Solar
+41496,Solar,Solar
+41514,Electricity used for Energy Storage,Other

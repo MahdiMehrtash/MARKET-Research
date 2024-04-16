@@ -17,7 +17,6 @@ class GenCo:
 
     def currentCap(self, weatherCoef=1):
         self.availableCap = self.MaxCap * weatherCoef * np.random.choice(2, 1, p=[self.FOR, 1-self.FOR])
-        # self.participateCap = np.minimum(self.availableCap, self.CapObl)
         return self.availableCap
     
     def updateCSO(self, dfCSO, dfISO, cap_rate, adj_rate, month):
@@ -28,7 +27,13 @@ class GenCo:
             totalCSObyFuel = dfCSO[dfCSO['Fuel Type'] ==  self.fuelType][month].sum()
             totalCapbyFuel = dfISO[dfISO['Fuel Type'] == self.fuelType]['Nameplate Capacity (MW)'].sum()
             # numberOfGenbyFuel = len(dfCSO[dfCSO['Fuel Type'] == self.fuelType])
-            self.CapObl = (self.MaxCap / totalCapbyFuel) * totalCSObyFuel * adj_rate[index]
+            self.CapObl = (self.MaxCap / totalCapbyFuel) * (totalCSObyFuel * adj_rate[index])
+            if self.CapObl > self.MaxCap:
+                print('CapObl > MaxCap', self.CapObl, self.MaxCap, self.fuelType)
+                print('totalCSObyFuel', totalCSObyFuel, 'totalCapbyFuel', totalCapbyFuel, 'adj_rate', adj_rate)
+                raise
+            assert self.CapObl >= 0.0
+            assert self.CapObl <= self.MaxCap
         else:
             self.CapObl = 0.0
 
@@ -56,27 +61,6 @@ def getGenCos(numGen, df=None, fuelMappingDict=None):
 
 
 
-def plotData(dfHourlyLoad, dfHourlySolar, dfHourlyWind, totalCap, totalCSO, yearPlot="2023"):
-    month, day, year = map(int,dfHourlyLoad.loc[0]['Date'].split('/'))
-    start = datetime(year, month, day, int(dfHourlyLoad.loc[0]['Hour Ending']) - 1)
-    month, day, year = map(int,dfHourlyLoad.loc[len(dfHourlyLoad) - 1]['Date'].split('/'))
-    end =  datetime(year, month, day, int(dfHourlyLoad.loc[len(dfHourlyLoad) - 1]['Hour Ending']) - 1)
-
-    timeRange = pd.date_range(start, end, periods=len(dfHourlyLoad))
-
-
-    plt.plot(timeRange, dfHourlyLoad['Total Load'], label='Total Load')
-    plt.plot(timeRange, dfHourlySolar['tot_solar_mwh'], label='Solar')
-    plt.plot(timeRange, dfHourlyWind['tot_wind_mwh'], label='Wind')
-    plt.plot(timeRange, totalCap * np.ones(len(dfHourlyLoad)), 'k--', label='Total Capacity')
-    plt.plot(timeRange, totalCSO * np.ones(len(dfHourlyLoad)), 'k--', label='Total CSO')
-
-    plt.xlabel('Date')
-    plt.ylabel('Load (MW)')
-    plt.title('Hourly Load of ' + yearPlot)
-    plt.legend()
-
-
 def plotResults(payments, genCos, numGen, info, markov_cons=1):
     bins=50
     print(payments.shape)
@@ -92,23 +76,6 @@ def plotResults(payments, genCos, numGen, info, markov_cons=1):
     plt.pause(3)
     plt.close()
 
-    # # plt.subplot(2, 1, 2)
-    # VREslice, nonVREslice = [], []
-    # for i in range(numGen):
-    #     if genCos[i].fuelType in ['Solar', 'Wind']:
-    #         VREslice.append(i)
-    #     else:
-    #         nonVREslice.append(i)
-
-    # plt.hist(payments[:, VREslice].sum(axis=0), bins=bins, alpha=0.5, label='VRE')
-    # # plt.hist(payments[:, nonVREslice].sum(axis=0), bins=bins, alpha=0.5, label='Others')
-    # plt.xlabel('Payments')
-    # plt.ylabel('Frequency')
-    # plt.yscale('log')
-    # plt.title('Payments Distribution over {} runs'.format(len(payments)))
-    # plt.legend()
-    # plt.show()
-
     paymentsByFuel = {}
     for i in range(len(genCos)):
         genco = genCos[i]
@@ -120,36 +87,9 @@ def plotResults(payments, genCos, numGen, info, markov_cons=1):
     print(paymentsByFuel)
     index = np.argsort(list(paymentsByFuel.values()))
     index = index[::-1]
-    plt.bar(np.array(list(paymentsByFuel.keys()))[index], np.array(list(paymentsByFuel.values()))[index] / markov_cons)
+    plt.bar(np.array(list(paymentsByFuel.keys()))[index], np.array(list(paymentsByFuel.values()))[index] / markov_cons / 1000)
+    plt.ylabel('Payments M$')
     plt.savefig('Payments/paymentsByFuel' + info[0] + '-' + info[1] + '.pdf')
-    plt.show(block=False)
-    plt.pause(3)
-    plt.close()
-
-    plotGenData(genCos, CSO=True)
-
-
-def plotGenData(genCos, CSO=False):
-    csoHist = {}
-    for genco in genCos:
-        if CSO:
-            temp = genco.CapObl
-        else:
-            temp = genco.MaxCap
-
-        if genco.fuelType in csoHist:
-            csoHist[genco.fuelType] += temp
-        else:
-            csoHist[genco.fuelType] = temp
-    print(csoHist)
-
-    labels = list(csoHist.keys())
-    weights = list(csoHist.values())
-
-    plt.bar(labels, weights)
-    plt.xlabel('Fuel Type')
-    plt.ylabel(*['CSO' if CSO else 'Total Capacity'])
-    plt.savefig('Payments/CSOByFuel.pdf')
     plt.show(block=False)
     plt.pause(3)
     plt.close()

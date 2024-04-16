@@ -1,30 +1,29 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-from loadForecast import LOAD_ADJ
 
 # Constants
 VRE_MIX = {'low':0.3, 'medium':0.5, 'high':0.7}
+LOAD_ADJ = {'low':0.95, 'medium':1.0, 'high':1.05}
 
-fuelDict = {'BIT':'Coal', 'NG':'Gas', 'WAT':'Hydro', 'NUC':'Nuclear', \
-                'DFO':'Oil', 'RFO':'Oil', 'JF':'Oil', 'KER':'Oil', \
-                'MSW':'Waste', 'SUN':'Solar', 'WND':'Wind', 'WDS':'Wood'}
+# fuelDict = {'BIT':'Coal', 'NG':'Gas', 'WAT':'Hydro', 'NUC':'Nuclear', \
+#                 'DFO':'Oil', 'RFO':'Oil', 'JF':'Oil', 'KER':'Oil', \
+#                 'MSW':'Waste', 'SUN':'Solar', 'WND':'Wind', 'WDS':'Wood'}
+fuelDict = {'LFG': 'Gas', 'NG': 'Gas', 'DFO': 'Gas', 'KER': 'Gas',\
+            'WDS':'Waste', 'BIT':'Coal', 'MSW' : 'Waste', \
+            'JF':'Oil', 'RFO' : 'Oil',
+            'WAT':'Hydro', 'NUC':'Nuclear', 'WND':'Wind', 'SUN':'Solar',\
+            'OBG': 'Other', 'MWH': 'Other'}
 
 def getISO(ISO='ISNE'):
-    # df = pd.read_excel('data/november_generator2023.xlsx', skiprows=0, index_col=0)
-    # df = df[1:]
-    # df.columns = df.iloc[0]
-    # df = df[1:]
-    # dfISO = df.loc[df['Balancing Authority Code'] == ISO]
-    dfISO = pd.read_csv('data/ISNEGEN23.csv')
-
+    dfISO = pd.read_csv('data/CELT2023.csv')
     numGenerators = len(dfISO.index)
     totalCap = sum(dfISO['Nameplate Capacity (MW)'].to_list())
     totalCSO = 28660.0 #MWs from ISO-NE website
 
-    fuels = dfISO['Energy Source Code'].map(fuelDict)
-    fuels = fuels.fillna('Other')
-    dfISO.insert(3, 'Fuel Type', fuels)
+    # fuels = dfISO['Primary Fuel Type'].map(fuelDict)
+    # fuels = fuels.fillna('Other')
+    # dfISO.insert(3, 'Fuel Type', fuels)
     print('Total Capacity: ', totalCap, 'Number of Generators: ', numGenerators)
     return dfISO, numGenerators, totalCap, totalCSO
 

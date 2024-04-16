@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import argparse
 
-from utilsData import getHourlyLoad
+from utilsData import getHourlyLoad, LOAD_ADJ
 
-LOAD_ADJ = {'low':0.95, 'medium':1.0, 'high':1.05}
+
 # Summer and Winter Peaks
 PeakGrowths = [1.09, 1.206]
 
