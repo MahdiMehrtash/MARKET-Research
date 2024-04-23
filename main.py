@@ -69,18 +69,19 @@ if __name__ == "__main__":
             hourlynegativeLoadSolar = np.random.normal(dfHourlySolar.iloc[hour]['tot_solar_mwh'], args.sigma, 1)
             hourlynegativeLoadWind = np.random.normal(dfHourlyWind.iloc[hour]['tot_wind_mwh'], args.sigma, 1)
 
-            month = pd.to_datetime(dfHourlyLoad.iloc[hour]['Date']).strftime('%B')
+            date = pd.to_datetime(dfHourlyLoad.iloc[hour]['Date'])
+            hourEnding = dfHourlyLoad.iloc[hour]['Hour Ending']
+            month = date.strftime('%B')
             if last_month != month:
                 for gen in genCos: gen.updateCSO(dfCSO, dfISO, cap_rate, adjRatios, month);
                 last_month = month
                 totalCSO = sum([gen.CapObl for gen in genCos])
 
-
             loads = [hourlyLoad, hourlynegativeLoadSolar, hourlynegativeLoadWind]
-            payment = market.run(numGen=numGenerators, genCos=genCos, totalCSO=totalCSO, load=loads, verbose=False)
+            payment = market.run(numGen=numGenerators, genCos=genCos, totalCSO=totalCSO, load=loads, date=[date,hourEnding] , verbose=False)
             payment = np.concatenate([x if isinstance(x, np.ndarray) else [x] for x in payment])
             payments.append(payment)
-            
+
 
             
     print('Average CSC: ', market.numberOfCSCs / args.markov_cons)

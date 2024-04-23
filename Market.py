@@ -1,9 +1,14 @@
 import numpy as np
+from csv import DictWriter
 
 class Market:
     def __init__(self, MRR=1600):
         self.numberOfCSCs = 0
         self.MRR = MRR
+
+        with open('Payments/log.csv', 'a') as f:
+            f.write('Running a new code' + '\n')
+        f.close()
 
     def getCurrentCap(self, genCos):
         totalAvailableCap = 0.
@@ -20,13 +25,25 @@ class Market:
             obligationsSum += gen.CapObl
         return obligationsSum
     
-    def run(self, numGen=100, genCos=[], totalCSO=0, load=-1, verbose=False):
+    def run(self, numGen=100, genCos=[], totalCSO=0, load=-1, date=[], verbose=False):
         totalAvailableCap = self.getCurrentCap(genCos)
         hourlyLoad, hourlynegativeLoadSolar, hourlynegativeLoadWind = load
         if verbose:
             print('Total Available Capacity: ', totalAvailableCap, ' ,Load of the Day: ', load)
         if totalAvailableCap - hourlyLoad + hourlynegativeLoadSolar + hourlynegativeLoadWind  < self.MRR:
             self.numberOfCSCs += 1
+            # open a csv file and append the date and time
+            logDict = {'Date': date[0],\
+                       'hour': date[1],\
+                        'totalAvailableCap': totalAvailableCap,\
+                        'Hourly Load': hourlyLoad,\
+                        'Hourly Negative Load Solar': hourlynegativeLoadSolar,\
+                        'Hourly Negative Load Wind': hourlynegativeLoadWind}
+            with open('Payments/log.csv', 'a') as f_object:
+                dictwriter_object = DictWriter(f_object, fieldnames=logDict.keys())
+                dictwriter_object.writerow(logDict)
+                f_object.close()
+
 
             pfp = PFP(genCos)
             payments = pfp.calcPFP(hourlynegativeLoadSolar, hourlynegativeLoadWind, totalCSO)

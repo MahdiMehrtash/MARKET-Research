@@ -64,42 +64,35 @@ if __name__ == "__main__":
     dfHourlySolar, dfHourlyWind = getHourlyGen(ISO=args.ISO, verbose=args.verbose)
     # fuelMappingDict = dict(zip(dfISO['Technology'].tolist(), dfISO['Energy Source Code'].tolist()))
 
-    if True:
-        # Get 2030 Load
-        dfHourlyLoadAdj = getFutureLoad(ISO=args.ISO, verbose=args.verbose, path='data/forecast/load_rate_' + args.load_rate + '/dfHourlyDemand2030.csv')
-        # Build Future Data
-        cap_rate = 1.00
-        RA = False
-        while RA is False:
-            print('capacity increase rate:', cap_rate)
-            dfISOAdj, totalCapAdj, adjRatios = getFutureGeneratorData(dfISO, cap_rate=cap_rate, vre_mix=args.vre_mix)
-            dfHourlySolarAdj, dfHourlyWindAdj = getFutureGenerationData(dfHourlySolar, dfHourlyWind, adjRatios)
+    # Get 2030 Load
+    dfHourlyLoadAdj = getFutureLoad(ISO=args.ISO, verbose=args.verbose, path='data/forecast/load_rate_' + args.load_rate + '/dfHourlyDemand2030.csv')
+    # Build Future Data
+    cap_rate = 1.00
+    RA = False
+    while RA is False:
+        print('capacity increase rate:', cap_rate)
+        dfISOAdj, totalCapAdj, adjRatios = getFutureGeneratorData(dfISO, cap_rate=cap_rate, vre_mix=args.vre_mix)
+        dfHourlySolarAdj, dfHourlyWindAdj = getFutureGenerationData(dfHourlySolar, dfHourlyWind, adjRatios)
 
-            
-            # Get the GenCos
-            genCos =  getGenCos(numGenerators, dfISOAdj)
-            
-            market = Market(MRR=[])
-            RA, lole = getRA(args.markov_cons, dfISOAdj, market, genCos, dfHourlyLoadAdj, dfHourlySolarAdj, dfHourlyWindAdj, cap_rate=cap_rate, adjRatios=adjRatios)
-            if RA is False:
-                cap_rate += 0.2
-
-        # Save to CSV
-        infoDict = {'numGenerators':numGenerators, 'totalCap':totalCapAdj, 'adjRatios':adjRatios, 'cap_rate':cap_rate, 'LOLE': lole}
-        dfinfo = pd.DataFrame.from_dict(infoDict)
         
-        dfHourlySolarAdj.to_csv('data/forecast/load_rate_' + args.load_rate + '/vre_' + args.vre_mix +'/dfHourlySolar.csv', index=False)
-        dfHourlyWindAdj.to_csv('data/forecast/load_rate_' + args.load_rate + '/vre_' + args.vre_mix +'/dfHourlyWind.csv', index=False)
-        dfISOAdj.to_csv('data/forecast/load_rate_' + args.load_rate + '/vre_' + args.vre_mix +'/dfISO.csv', index=False)
-        dfinfo.to_csv('data/forecast/load_rate_' + args.load_rate + '/vre_' + args.vre_mix +'/infoDict.csv', index=False)
-
-    else:
-        dfHoulyLoad = getHourlyLoad(ISO=args.ISO, verbose=args.verbose)
         # Get the GenCos
-        genCos =  getGenCos(numGenerators, totalCSO, dfISO)
+        genCos =  getGenCos(numGenerators, dfISOAdj)
+        
+        market = Market(MRR=[])
+        RA, lole = getRA(args.markov_cons, dfISOAdj, market, genCos, dfHourlyLoadAdj, dfHourlySolarAdj, dfHourlyWindAdj, cap_rate=cap_rate, adjRatios=adjRatios)
+        if RA is False:
+            cap_rate += 0.2
 
-        market = Market(MRR=[], totalCSO=totalCSO)
-        RA, LOLE = getRA(args.markov_cons, market, genCos, dfHoulyLoad, dfHourlySolar, dfHourlyWind)
+    # Save to CSV
+    datentime = datetime.now().strftime("%Y/%m/%d-%H:%M:%S")
+    infoDict = {'time': datentime, 'numGenerators':numGenerators, 'totalCap':totalCapAdj, 'adjRatios':adjRatios, 'cap_rate':cap_rate, 'LOLE': lole}
+    dfinfo = pd.DataFrame.from_dict(infoDict)
+    
+    dfHourlySolarAdj.to_csv('data/forecast/load_rate_' + args.load_rate + '/vre_' + args.vre_mix +'/dfHourlySolar.csv', index=False)
+    dfHourlyWindAdj.to_csv('data/forecast/load_rate_' + args.load_rate + '/vre_' + args.vre_mix +'/dfHourlyWind.csv', index=False)
+    dfISOAdj.to_csv('data/forecast/load_rate_' + args.load_rate + '/vre_' + args.vre_mix +'/dfISO.csv', index=False)
+    dfinfo.to_csv('data/forecast/load_rate_' + args.load_rate + '/vre_' + args.vre_mix +'/infoDict.csv', index=False)
+
         
     
 

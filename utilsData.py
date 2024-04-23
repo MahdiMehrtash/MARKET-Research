@@ -9,11 +9,16 @@ LOAD_ADJ = {'low':0.95, 'medium':1.0, 'high':1.05}
 # fuelDict = {'BIT':'Coal', 'NG':'Gas', 'WAT':'Hydro', 'NUC':'Nuclear', \
 #                 'DFO':'Oil', 'RFO':'Oil', 'JF':'Oil', 'KER':'Oil', \
 #                 'MSW':'Waste', 'SUN':'Solar', 'WND':'Wind', 'WDS':'Wood'}
-fuelDict = {'LFG': 'Gas', 'NG': 'Gas', 'DFO': 'Gas', 'KER': 'Gas',\
-            'WDS':'Waste', 'BIT':'Coal', 'MSW' : 'Waste', \
+# fuelDict = {'LFG': 'Gas', 'NG': 'Gas', 'DFO': 'Gas', 'KER': 'Gas',\
+#             'WDS':'Waste', 'BIT':'Coal', 'MSW' : 'Waste', \
+#             'JF':'Oil', 'RFO' : 'Oil',
+#             'WAT':'Hydro', 'NUC':'Nuclear', 'WND':'Wind', 'SUN':'Solar',\
+#             'OBG': 'Other', 'MWH': 'Other'}
+fuelDict = {'LFG': 'LandFill Gas', 'NG': 'Gas', 'DFO': 'Oil', 'KER': 'Oil',\
+            'WDS':'Refuse/Woods', 'BIT':'Coal', 'MSW' : 'Refuse/Woods', \
             'JF':'Oil', 'RFO' : 'Oil',
             'WAT':'Hydro', 'NUC':'Nuclear', 'WND':'Wind', 'SUN':'Solar',\
-            'OBG': 'Other', 'MWH': 'Other'}
+            'OBG': 'Gas-Other', 'MWH': 'Other'}
 
 def getISO(ISO='ISNE'):
     dfISO = pd.read_csv('data/CELT2023.csv')
@@ -62,6 +67,9 @@ def getFutureGeneratorData(dfISO, cap_rate=1.00, vre_mix='low'):
     initTotalCap = sum(dfISOAdj['Nameplate Capacity (MW)'].to_list())
     initTotalVRE = sum(dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])].to_list())
     initTotalnonVRE = initTotalCap - initTotalVRE
+
+    if vre_mix == 'current':
+        return dfISOAdj, initTotalCap, (1.0, 1.0)
     
     vre_coef = VRE_MIX[vre_mix]
 

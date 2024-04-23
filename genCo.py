@@ -3,9 +3,10 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import pandas as pd
 # Based on https://www.iso-ne.com/static-assets/documents/genrtion_resrcs/gads/class_ave_2010.pdf
-FOR_dict = {'Gas': 0.04, 'Oil': 0.13, 'Coal': 0.08, \
+FOR_dict = {'LandFill Gas': 0.04, 'Gas': 0.04, 'Gas-Other': 0.04,
+            'Oil': 0.13, 'Coal': 0.08, \
             'Hydro': 0.07, 'Nuclear': 0.01, \
-            'Waste': 0.09, 'Wood': 0.09,\
+            'Refuse/Woods': 0.09,\
             'Solar': 0.07, 'Wind': 0.07, 'Other': 0.08}
 
 class GenCo:
@@ -87,7 +88,9 @@ def plotResults(payments, genCos, numGen, info, markov_cons=1):
     print(paymentsByFuel)
     index = np.argsort(list(paymentsByFuel.values()))
     index = index[::-1]
+    plt.figure(figsize=(15, 5))
     plt.bar(np.array(list(paymentsByFuel.keys()))[index], np.array(list(paymentsByFuel.values()))[index] / markov_cons / 1000)
+    # plt.xticks(fontsize = 8) 
     plt.ylabel('Payments M$')
     plt.savefig('Payments/paymentsByFuel' + info[0] + '-' + info[1] + '.pdf')
     plt.show(block=False)
