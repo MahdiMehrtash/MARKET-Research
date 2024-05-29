@@ -39,7 +39,8 @@ if __name__ == "__main__":
     parser.add_argument('--load-rate', type=str, choices=['current', 'low', 'medium' , 'high'], default='low')
     parser.add_argument('--vre-mix', type=str, choices=['current', 'low', 'medium' , 'high'], default='low')
     parser.add_argument('--markov-cons', type=int, default=1, help='Number of simulations to run.')
-    parser.add_argument('--sigma', type=float, default=0.1, help='Number of simulations to run.')
+    parser.add_argument('--sigma', type=float, default=0.1, help='VRE Variance.')
+    parser.add_argument('--vreOut', action='store_true', help='VRE take no CSO.')
     parser.add_argument('--verbose', type=bool, default=False)
 
     args = parser.parse_args()
@@ -47,6 +48,7 @@ if __name__ == "__main__":
     # Get Future Load and Data
     dfHourlyLoad, dfHourlySolar, dfHourlyWind, dfISO, info = getFutureData(ISO=args.ISO, verbose=args.verbose, path='data/forecast/' , 
                                                                            load_rate=args.load_rate, vre_mix=args.vre_mix)
+    
     numGenerators, totalCap, adjRatios, cap_rate, LOLE = info[0][0], info[1][0], info[2], info[3][0], info[4][0]
 
     # Get the Minimum Reserve Requirement for CSC
@@ -73,7 +75,7 @@ if __name__ == "__main__":
             hourEnding = dfHourlyLoad.iloc[hour]['Hour Ending']
             month = date.strftime('%B')
             if last_month != month:
-                for gen in genCos: gen.updateCSO(dfCSO, dfISO, cap_rate, adjRatios, month);
+                for gen in genCos: gen.updateCSO(dfCSO, dfISO, cap_rate, adjRatios, month, vreOut=args.vreOut);
                 last_month = month
                 totalCSO = sum([gen.CapObl for gen in genCos])
 

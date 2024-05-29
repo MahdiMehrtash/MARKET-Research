@@ -18,9 +18,11 @@ fuelDict = {'LFG': 'LandFill Gas', 'NG': 'Gas', 'DFO': 'Oil', 'KER': 'Oil',\
             'WDS':'Refuse/Woods', 'BIT':'Coal', 'MSW' : 'Refuse/Woods', \
             'JF':'Oil', 'RFO' : 'Oil',
             'WAT':'Hydro', 'NUC':'Nuclear', 'WND':'Wind', 'SUN':'Solar',\
-            'OBG': 'Gas-Other', 'MWH': 'Other'}
+            'OBG': 'Gas-Other', 'MWH': 'ES'}
 
 def getISO(ISO='ISNE'):
+    if ISO != 'ISNE':
+        raise NotImplementedError
     dfISO = pd.read_csv('data/CELT2023.csv')
     numGenerators = len(dfISO.index)
     totalCap = sum(dfISO['Nameplate Capacity (MW)'].to_list())
@@ -65,7 +67,7 @@ def getHourlyGen(ISO='ISNE', verbose=False):
 def getFutureGeneratorData(dfISO, cap_rate=1.00, vre_mix='low'):
     dfISOAdj = dfISO.copy()
     initTotalCap = sum(dfISOAdj['Nameplate Capacity (MW)'].to_list())
-    initTotalVRE = sum(dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])].to_list())
+    initTotalVRE = sum(dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind', 'ES'])].to_list())
     initTotalnonVRE = initTotalCap - initTotalVRE
 
     if vre_mix == 'current':
@@ -77,18 +79,13 @@ def getFutureGeneratorData(dfISO, cap_rate=1.00, vre_mix='low'):
     futureTotalVRE = futureTotalCap * vre_coef
     futureTotalNonVRE = futureTotalCap - futureTotalVRE
 
-    dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])] *= futureTotalVRE / initTotalVRE
-    dfISOAdj['Nameplate Capacity (MW)'].loc[~dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])] *= futureTotalNonVRE / initTotalnonVRE
+    dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind', 'ES'])] *= (futureTotalVRE / initTotalVRE)
+    dfISOAdj['Nameplate Capacity (MW)'].loc[~dfISOAdj['Fuel Type'].isin(['Solar', 'Wind', 'ES'])] *= (futureTotalNonVRE / initTotalnonVRE)
 
-    # futureTotalCSO = totalCSO * cap_rate
     ratios = (futureTotalVRE / initTotalVRE, futureTotalNonVRE / initTotalnonVRE)
         
     return dfISOAdj, futureTotalCap, ratios
 
-# def getFutureLoadData(dfHourlyLoad, load_rate='low'):
-#     load_coef = LOAD_ADJ[load_rate]
-#     dfHourlyLoad['Total Load'] *= load_coef
-#     return dfHourlyLoad
 
 def getFutureGenerationData(dfHourlySolar, dfHourlyWind, adjRatios):
     dfHourlySolarAdj = dfHourlySolar.copy()

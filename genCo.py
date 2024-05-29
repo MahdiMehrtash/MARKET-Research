@@ -7,7 +7,7 @@ FOR_dict = {'LandFill Gas': 0.04, 'Gas': 0.04, 'Gas-Other': 0.04,
             'Oil': 0.13, 'Coal': 0.08, \
             'Hydro': 0.07, 'Nuclear': 0.01, \
             'Refuse/Woods': 0.09,\
-            'Solar': 0.07, 'Wind': 0.07, 'Other': 0.08}
+            'Solar': 0.07, 'Wind': 0.07, 'ES':0.07, 'Other': 0.08}
 
 class GenCo:
     def __init__(self, MaxCap, CapObl, fuelType, deratedCap, FOR=0.1):
@@ -15,40 +15,44 @@ class GenCo:
         self.CapObl = CapObl
         self.FOR = FOR
         self.fuelType = fuelType
+        if self.fuelType in ['ES']:
+            self.totalHours = 4
+            self.hoursRemaining = self.totalHours
 
     def currentCap(self, weatherCoef=1):
         self.availableCap = self.MaxCap * weatherCoef * np.random.choice(2, 1, p=[self.FOR, 1-self.FOR])
+        if self.fuelType in ['ES'] and self.hoursRemaining == 0:
+            self.availableCap = 0
         return self.availableCap
     
-    def updateCSO(self, dfCSO, dfISO, cap_rate, adj_rate, month):
-        index = 1
-        if self.fuelType in ['Wind', 'Solar']:
-            index = 0
+    def updateCSO(self, dfCSO, dfISO, cap_rate, adj_rate, month, vreOut=False):
         if len(dfCSO[dfCSO['Fuel Type'] == self.fuelType]) > 0:
             totalCSObyFuel = dfCSO[dfCSO['Fuel Type'] ==  self.fuelType][month].sum()
             totalCapbyFuel = dfISO[dfISO['Fuel Type'] == self.fuelType]['Nameplate Capacity (MW)'].sum()
-            # numberOfGenbyFuel = len(dfCSO[dfCSO['Fuel Type'] == self.fuelType])
-            self.CapObl = (self.MaxCap / totalCapbyFuel) * (totalCSObyFuel * adj_rate[index])
+            if self.fuelType in ['Wind', 'Solar', 'ES']:
+                if vreOut:
+                    self.CapObl = 0.0
+                else:
+                    self.CapObl = self.MaxCap * (totalCSObyFuel * adj_rate[0])/ totalCapbyFuel
+            else:
+                self.CapObl = self.MaxCap * (totalCSObyFuel * adj_rate[1])/ totalCapbyFuel
+            
             if self.CapObl > self.MaxCap:
+                # import pdb
+                # pdb.set_trace()
+                print(totalCSObyFuel * adj_rate[1], totalCapbyFuel)
                 print('CapObl > MaxCap', self.CapObl, self.MaxCap, self.fuelType)
                 print('totalCSObyFuel', totalCSObyFuel, 'totalCapbyFuel', totalCapbyFuel, 'adj_rate', adj_rate)
-                raise
+                raise ValueError
             assert self.CapObl >= 0.0
             assert self.CapObl <= self.MaxCap
         else:
             self.CapObl = 0.0
 
-def getGenCos(numGen, df=None, fuelMappingDict=None):
+def getGenCos(numGen, df=None):
     genCos = []
     MaxCaps = df['Nameplate Capacity (MW)'].to_list()
     fuelTypes = df['Fuel Type'].to_list()
-
-    # derateCnt = {'Coal': 1.0, 'Gas': 1.0, 'Hydro': 1.0, 'Nuclear': 1.0, \
-    #              'Oil': 1.0, 'Waste': 1.0, 'Wood': 1.0,\
-    #              'Solar': 0.15, 'Wind': 0.15, 'Other': 1.0}
-    # deratedCap = [MaxCaps[i] * derateCnt[fuelTypes[i]] for i in range(numGen)]
-    # totalDeratedCap = sum(deratedCap)
-    # obligations = deratedCap * np.array(totalCSO)/np.array(totalDeratedCap)
 
     for i in range(numGen):
         MaxCap = MaxCaps[i] 
@@ -78,20 +82,27 @@ def plotResults(payments, genCos, numGen, info, markov_cons=1):
     plt.close()
 
     paymentsByFuel = {}
+    csoByFuel = {}
     for i in range(len(genCos)):
         genco = genCos[i]
         if genco.fuelType in paymentsByFuel:
             paymentsByFuel[genco.fuelType] += payments[:, i].sum()
+            csoByFuel[genco.fuelType] += genco.CapObl
         else:
             paymentsByFuel[genco.fuelType]  = payments[:, i].sum()
+            csoByFuel[genco.fuelType] = genco.CapObl
 
+    BPR = 3
     print(paymentsByFuel)
+    print(csoByFuel)
     index = np.argsort(list(paymentsByFuel.values()))
     index = index[::-1]
     plt.figure(figsize=(15, 5))
-    plt.bar(np.array(list(paymentsByFuel.keys()))[index], np.array(list(paymentsByFuel.values()))[index] / markov_cons / 1000)
+    plt.bar(np.array(list(paymentsByFuel.keys()))[index], np.array(list(paymentsByFuel.values()))[index] / markov_cons / 1000, label='PfP Payments')
+    plt.bar(np.array(list(csoByFuel.keys()))[index], np.array(list(csoByFuel.values()))[index] * BPR * 12 / 1000, alpha=0.5, label='FCA Payments')
     # plt.xticks(fontsize = 8) 
     plt.ylabel('Payments M$')
+    plt.legend()
     plt.savefig('Payments/paymentsByFuel' + info[0] + '-' + info[1] + '.pdf')
     plt.show(block=False)
     plt.pause(3)

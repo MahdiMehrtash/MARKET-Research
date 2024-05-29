@@ -62,7 +62,6 @@ if __name__ == "__main__":
     # Get 2023 Gen Data
     dfISO, numGenerators, totalCap, __ = getISO(ISO=args.ISO)
     dfHourlySolar, dfHourlyWind = getHourlyGen(ISO=args.ISO, verbose=args.verbose)
-    # fuelMappingDict = dict(zip(dfISO['Technology'].tolist(), dfISO['Energy Source Code'].tolist()))
 
     # Get 2030 Load
     dfHourlyLoadAdj = getFutureLoad(ISO=args.ISO, verbose=args.verbose, path='data/forecast/load_rate_' + args.load_rate + '/dfHourlyDemand2030.csv')
@@ -74,14 +73,13 @@ if __name__ == "__main__":
         dfISOAdj, totalCapAdj, adjRatios = getFutureGeneratorData(dfISO, cap_rate=cap_rate, vre_mix=args.vre_mix)
         dfHourlySolarAdj, dfHourlyWindAdj = getFutureGenerationData(dfHourlySolar, dfHourlyWind, adjRatios)
 
-        
         # Get the GenCos
         genCos =  getGenCos(numGenerators, dfISOAdj)
         
         market = Market(MRR=[])
         RA, lole = getRA(args.markov_cons, dfISOAdj, market, genCos, dfHourlyLoadAdj, dfHourlySolarAdj, dfHourlyWindAdj, cap_rate=cap_rate, adjRatios=adjRatios)
         if RA is False:
-            cap_rate += 0.2
+            cap_rate += 0.20
 
     # Save to CSV
     datentime = datetime.now().strftime("%Y/%m/%d-%H:%M:%S")

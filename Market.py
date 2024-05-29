@@ -15,6 +15,9 @@ class Market:
         for gen in genCos:
             if gen.fuelType in ['Solar', 'Wind']:
                 pass
+            elif gen.fuelType in ['ES']:
+                totalAvailableCap += gen.currentCap() / gen.totalHours
+                gen.hoursRemaining -= 1 #decharge the battery
             else:
                 totalAvailableCap += gen.currentCap()
         return totalAvailableCap
@@ -44,12 +47,16 @@ class Market:
                 dictwriter_object.writerow(logDict)
                 f_object.close()
 
-
             pfp = PFP(genCos)
             payments = pfp.calcPFP(hourlynegativeLoadSolar, hourlynegativeLoadWind, totalCSO)
             payments = np.array(payments)
             return payments
         else:
+            # ReCharge the Batteries
+            for gen in genCos:
+                if gen.fuelType in ['ES']:
+                    gen.hoursRemaining = gen.totalHours
+
             return np.zeros((numGen, 1))
         
     def RA(self, genCos, load, verbose=False):
