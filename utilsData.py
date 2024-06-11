@@ -6,15 +6,12 @@ import matplotlib.pyplot as plt
 VRE_MIX = {'low':0.3, 'medium':0.5, 'high':0.7}
 LOAD_ADJ = {'low':0.95, 'medium':1.0, 'high':1.05}
 
-# fuelDict = {'BIT':'Coal', 'NG':'Gas', 'WAT':'Hydro', 'NUC':'Nuclear', \
-#                 'DFO':'Oil', 'RFO':'Oil', 'JF':'Oil', 'KER':'Oil', \
-#                 'MSW':'Waste', 'SUN':'Solar', 'WND':'Wind', 'WDS':'Wood'}
 # fuelDict = {'LFG': 'Gas', 'NG': 'Gas', 'DFO': 'Gas', 'KER': 'Gas',\
 #             'WDS':'Waste', 'BIT':'Coal', 'MSW' : 'Waste', \
 #             'JF':'Oil', 'RFO' : 'Oil',
 #             'WAT':'Hydro', 'NUC':'Nuclear', 'WND':'Wind', 'SUN':'Solar',\
 #             'OBG': 'Other', 'MWH': 'Other'}
-fuelDict = {'LFG': 'LandFill Gas', 'NG': 'Gas', 'DFO': 'Oil', 'KER': 'Oil',\
+fuelDict = {'LFG': 'Landfill Gas', 'NG': 'Gas', 'DFO': 'Oil', 'KER': 'Oil',\
             'WDS':'Refuse/Woods', 'BIT':'Coal', 'MSW' : 'Refuse/Woods', \
             'JF':'Oil', 'RFO' : 'Oil',
             'WAT':'Hydro', 'NUC':'Nuclear', 'WND':'Wind', 'SUN':'Solar',\
@@ -28,13 +25,10 @@ def getISO(ISO='ISNE'):
     totalCap = sum(dfISO['Nameplate Capacity (MW)'].to_list())
     totalCSO = 28660.0 #MWs from ISO-NE website
 
-    # fuels = dfISO['Primary Fuel Type'].map(fuelDict)
-    # fuels = fuels.fillna('Other')
-    # dfISO.insert(3, 'Fuel Type', fuels)
     print('Total Capacity: ', totalCap, 'Number of Generators: ', numGenerators)
     return dfISO, numGenerators, totalCap, totalCSO
 
-def getHourlyLoad(ISO='ISNE', verbose=False, path='data/HourlyDemand2023.csv'):
+def getHourlyLoad(ISO='ISNE', verbose=False, path='data/Demand&Generation/HourlyDemand2023.csv'):
     if ISO == 'ISNE':
         # url = 'https://www.iso-ne.com/transform/csv/hourlysystemdemand?start=20230101&end=20231231'
         dfHourlyLoad = pd.read_csv(path, skiprows=1)
@@ -50,15 +44,13 @@ def getHourlyGen(ISO='ISNE', verbose=False):
     if ISO == 'ISNE':
         # url = https://www.iso-ne.com/isoexpress/web/reports/operations/-/tree/daily-gen-fuel-type
         # Solar
-        dfHourlySolar = pd.read_excel('data/HourlySolar2023.xlsx', sheet_name='HourlyData')
+        dfHourlySolar = pd.read_excel('data/Demand&Generation/HourlySolar2023.xlsx', sheet_name='HourlyData')
         dfHourlySolar.fillna(0, inplace=True)
         dfHourlySolar.drop('year', axis=1, inplace=True)
         # Wind
-        dfHourlyWind = pd.read_excel('data/HourlyWind2023.xlsx', sheet_name='HourlyData')
+        dfHourlyWind = pd.read_excel('data/Demand&Generation/HourlyWind2023.xlsx', sheet_name='HourlyData')
         dfHourlyWind.fillna(0, inplace=True)
         dfHourlyWind.drop('year', axis=1, inplace=True)
-        # Others
-        dfDailyLoad = pd.read_excel('data/DailyGen2023.xlsx', skiprows=0, index_col=None, sheet_name='DAYGENBYFUEL')
     else:
         raise NotImplementedError
     return dfHourlySolar, dfHourlyWind

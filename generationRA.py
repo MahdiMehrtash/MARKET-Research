@@ -55,6 +55,7 @@ if __name__ == "__main__":
     parser.add_argument('--vre-mix', type=str, choices=['current', 'low', 'medium' , 'high'], default='low')
     parser.add_argument('--load-rate', type=str, choices=['current', 'low', 'medium' , 'high'], default='low')
     parser.add_argument('--markov-cons', type=int, default=1, help='Number of simulations to run.')
+    parser.add_argument('--esCharge', type=float, default=1.0, help='ESs charge level @ CSCs.')
     parser.add_argument('--verbose', type=bool, default=False)
 
     args = parser.parse_args()
@@ -66,7 +67,7 @@ if __name__ == "__main__":
     # Get 2030 Load
     dfHourlyLoadAdj = getFutureLoad(ISO=args.ISO, verbose=args.verbose, path='data/forecast/load_rate_' + args.load_rate + '/dfHourlyDemand2030.csv')
     # Build Future Data
-    cap_rate = 1.00
+    cap_rate = 1.25
     RA = False
     while RA is False:
         print('capacity increase rate:', cap_rate)
@@ -74,12 +75,12 @@ if __name__ == "__main__":
         dfHourlySolarAdj, dfHourlyWindAdj = getFutureGenerationData(dfHourlySolar, dfHourlyWind, adjRatios)
 
         # Get the GenCos
-        genCos =  getGenCos(numGenerators, dfISOAdj)
+        genCos =  getGenCos(numGenerators, dfISOAdj, esCharge=args.esCharge)
         
         market = Market(MRR=[])
         RA, lole = getRA(args.markov_cons, dfISOAdj, market, genCos, dfHourlyLoadAdj, dfHourlySolarAdj, dfHourlyWindAdj, cap_rate=cap_rate, adjRatios=adjRatios)
         if RA is False:
-            cap_rate += 0.20
+            cap_rate += 0.25
 
     # Save to CSV
     datentime = datetime.now().strftime("%Y/%m/%d-%H:%M:%S")

@@ -41,6 +41,7 @@ if __name__ == "__main__":
     parser.add_argument('--markov-cons', type=int, default=1, help='Number of simulations to run.')
     parser.add_argument('--sigma', type=float, default=0.1, help='VRE Variance.')
     parser.add_argument('--vreOut', action='store_true', help='VRE take no CSO.')
+    parser.add_argument('--esCharge', type=float, default=1.0, help='ESs charge level @ CSCs.')
     parser.add_argument('--verbose', type=bool, default=False)
 
     args = parser.parse_args()
@@ -56,10 +57,9 @@ if __name__ == "__main__":
     MRR = capacities[0] + 0.5 * capacities[1]
     
     # Get the GenCos and CSO
-    genCos =  getGenCos(numGenerators, dfISO)
+    genCos =  getGenCos(numGenerators, dfISO, esCharge=args.esCharge)
     dfCSO = pd.read_csv('data/CSO2023.csv', skiprows=0, index_col=None)
 
-    # pdb.set_trace()
     # Run the Market Simulation
     payments = []
     market = Market(MRR=MRR)
@@ -83,6 +83,7 @@ if __name__ == "__main__":
             payment = market.run(numGen=numGenerators, genCos=genCos, totalCSO=totalCSO, load=loads, date=[date,hourEnding] , verbose=False)
             payment = np.concatenate([x if isinstance(x, np.ndarray) else [x] for x in payment])
             payments.append(payment)
+            # break
 
 
             
@@ -90,6 +91,6 @@ if __name__ == "__main__":
     
     payments = np.array(payments)
     print('Total Payments:', payments.sum())
-    plotResults(payments, genCos, numGenerators, [args.load_rate, args.vre_mix], markov_cons=args.markov_cons)
+    plotResults(payments, genCos, numGenerators, [args.load_rate, args.vre_mix, str(args.esCharge)], markov_cons=args.markov_cons)
 
 
