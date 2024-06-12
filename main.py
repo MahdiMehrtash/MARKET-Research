@@ -51,6 +51,7 @@ if __name__ == "__main__":
                                                                            load_rate=args.load_rate, vre_mix=args.vre_mix)
     
     numGenerators, totalCap, adjRatios, cap_rate, LOLE = info[0][0], info[1][0], info[2], info[3][0], info[4][0]
+    print('Total Capacity: ', totalCap, 'Number of Generators: ', numGenerators, 'LOLE: ', LOLE)
 
     # Get the Minimum Reserve Requirement for CSC
     capacities = list(dfISO['Nameplate Capacity (MW)'].sort_values(ascending=False))
@@ -58,7 +59,7 @@ if __name__ == "__main__":
     
     # Get the GenCos and CSO
     genCos =  getGenCos(numGenerators, dfISO, esCharge=args.esCharge)
-    dfCSO = pd.read_csv('data/CSO2023.csv', skiprows=0, index_col=None)
+    # dfCSO = pd.read_csv('data/CSO2023.csv', skiprows=0, index_col=None)
 
     # Run the Market Simulation
     payments = []
@@ -75,7 +76,7 @@ if __name__ == "__main__":
             hourEnding = dfHourlyLoad.iloc[hour]['Hour Ending']
             month = date.strftime('%B')
             if last_month != month:
-                for gen in genCos: gen.updateCSO(dfCSO, dfISO, cap_rate, adjRatios, month, vreOut=args.vreOut);
+                for gen in genCos: gen.updateCSO(dfISO, cap_rate, adjRatios, month, vreOut=args.vreOut);
                 last_month = month
                 totalCSO = sum([gen.CapObl for gen in genCos])
 

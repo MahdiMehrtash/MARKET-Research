@@ -10,38 +10,32 @@ FOR_dict = {'Landfill Gas': 0.04, 'Gas': 0.04, 'Gas-Other': 0.04,
             'Solar': 0.07, 'Wind': 0.07, 'ES':0.07, 'Other': 0.08}
 
 class GenCo:
-    def __init__(self, MaxCap, CapObl, fuelType, FOR=0.1, esCharge=1.0):
+    def __init__(self, ID, MaxCap, CapObl, fuelType, FOR=0.1, esCharge=1.0):
         self.MaxCap = MaxCap
         self.CapObl = CapObl
         self.FOR = FOR
         self.fuelType = fuelType
+        self.ID = ID
         if self.fuelType in ['ES']:
             self.dischargeRate = 0.25
             self.totalHours = esCharge/self.dischargeRate
             self.hoursRemaining = self.totalHours
 
-    def currentCap(self, weatherCoef=1):
-        self.availableCap = self.MaxCap * weatherCoef * np.random.choice(2, 1, p=[self.FOR, 1-self.FOR])
+    def currentCap(self):
+        self.availableCap = self.MaxCap * np.random.choice(2, 1, p=[self.FOR, 1-self.FOR])
         if self.fuelType in ['ES'] and self.hoursRemaining == 0:
             self.availableCap = 0
         return self.availableCap
     
-    def updateCSO(self, dfCSO, dfISO, cap_rate, adj_rate, month, vreOut=False):
-        if len(dfCSO[dfCSO['Fuel Type'] == self.fuelType]) > 0:
-            totalCSObyFuel = dfCSO[dfCSO['Fuel Type'] ==  self.fuelType][month].sum()
-            totalCapbyFuel = dfISO[dfISO['Fuel Type'] == self.fuelType]['Nameplate Capacity (MW)'].sum()
-            if self.fuelType in ['Wind', 'Solar', 'ES']:
-                if vreOut:
-                    self.CapObl = 0.0
-                else:
-                    self.CapObl = self.MaxCap * (totalCSObyFuel * adj_rate[0])/ totalCapbyFuel
-            else:
-                self.CapObl = self.MaxCap * (totalCSObyFuel * adj_rate[1])/ totalCapbyFuel
+    def updateCSO(self, dfISO, cap_rate, adj_rate, month, vreOut=False):
+        if self.fuelType in ['Wind', 'Solar', 'ES'] and vreOut:
+            self.CapObl = 0.0
+            return
+        if len(dfISO[dfISO['Fuel Type'] == self.fuelType]) > 0:
+            self.CapObl = dfISO[dfISO['ID'] == self.ID][month].item()
             
             if self.CapObl > self.MaxCap:
-                print(totalCSObyFuel * adj_rate[1], totalCapbyFuel)
-                print('CapObl > MaxCap', self.CapObl, self.MaxCap, self.fuelType)
-                print('totalCSObyFuel', totalCSObyFuel, 'totalCapbyFuel', totalCapbyFuel, 'adj_rate', adj_rate)
+                print(self.ID, self.fuelType, self.CapObl, self.MaxCap)
                 raise ValueError
             assert self.CapObl >= 0.0
             assert self.CapObl <= self.MaxCap
@@ -52,6 +46,7 @@ def getGenCos(numGen, df=None, esCharge=None):
     genCos = []
     MaxCaps = df['Nameplate Capacity (MW)'].to_list()
     fuelTypes = df['Fuel Type'].to_list()
+    IDs = df['ID'].to_list()
 
 
     for i in range(numGen):
@@ -59,8 +54,9 @@ def getGenCos(numGen, df=None, esCharge=None):
         fuelType = fuelTypes[i]
         obligation = -1
         FOR = FOR_dict[fuelType]
+        id = IDs[i]
 
-        genCos.append(GenCo(MaxCap, obligation, fuelType, FOR=FOR, esCharge=esCharge))
+        genCos.append(GenCo(id, MaxCap, obligation, fuelType, FOR=FOR, esCharge=esCharge))
     return np.array(genCos)
 
 

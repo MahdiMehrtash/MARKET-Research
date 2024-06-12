@@ -16,8 +16,10 @@ class Market:
             if gen.fuelType in ['Solar', 'Wind']:
                 pass
             elif gen.fuelType in ['ES']:
-                totalAvailableCap += gen.currentCap() * gen.dischargeRate
-                gen.hoursRemaining -= 1 #decharge the battery
+                tmp = gen.currentCap()
+                if tmp > 0:
+                    totalAvailableCap += np.minimum(gen.currentCap(), gen.MaxCap * gen.dischargeRate)
+                    gen.hoursRemaining -= 1 #decharge the battery
             else:
                 totalAvailableCap += gen.currentCap()
         return totalAvailableCap
@@ -66,6 +68,10 @@ class Market:
         if totalAvailableCap - hourlyLoad + hourlynegativeLoadSolar + hourlynegativeLoadWind  < 0:
             return 1
         else:
+            # ReCharge the Batteries
+            for gen in genCos:
+                if gen.fuelType in ['ES']:
+                    gen.hoursRemaining = np.minimum(gen.totalHours, gen.hoursRemaining + 1)
             return 0
 
     

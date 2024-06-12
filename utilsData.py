@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
+pd.options.mode.chained_assignment = None  
+
 # Constants
 VRE_MIX = {'low':0.3, 'medium':0.5, 'high':0.7}
 LOAD_ADJ = {'low':0.95, 'medium':1.0, 'high':1.05}
@@ -20,12 +22,12 @@ fuelDict = {'LFG': 'Landfill Gas', 'NG': 'Gas', 'DFO': 'Oil', 'KER': 'Oil',\
 def getISO(ISO='ISNE'):
     if ISO != 'ISNE':
         raise NotImplementedError
-    dfISO = pd.read_csv('data/CELT2023.csv')
+    dfISO = pd.read_csv('data/generation.csv')
     numGenerators = len(dfISO.index)
     totalCap = sum(dfISO['Nameplate Capacity (MW)'].to_list())
-    totalCSO = 28660.0 #MWs from ISO-NE website
+    totalCSO = sum(dfISO['June'].to_list())
 
-    print('Total Capacity: ', totalCap, 'Number of Generators: ', numGenerators)
+    print('Total Capacity: ', totalCap, 'Number of Generators: ', numGenerators, 'Total CSO: ', totalCSO)
     return dfISO, numGenerators, totalCap, totalCSO
 
 def getHourlyLoad(ISO='ISNE', verbose=False, path='data/Demand&Generation/HourlyDemand2023.csv'):
@@ -56,11 +58,12 @@ def getHourlyGen(ISO='ISNE', verbose=False):
     return dfHourlySolar, dfHourlyWind
 
 
-def getFutureGeneratorData(dfISO, cap_rate=1.00, vre_mix='low'):
+def getFutureGeneratorData(dfISO, cap_rate=1.00, vre_mix='low', EStotalCap=1000.0):
     dfISOAdj = dfISO.copy()
     initTotalCap = sum(dfISOAdj['Nameplate Capacity (MW)'].to_list())
-    initTotalVRE = sum(dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind', 'ES'])].to_list())
-    initTotalnonVRE = initTotalCap - initTotalVRE
+    initTotalVRE = sum(dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])].to_list())
+    initTotalES = sum(dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['ES'])].to_list())
+    initTotalnonVRE = initTotalCap - initTotalVRE - initTotalES
 
     if vre_mix == 'current':
         return dfISOAdj, initTotalCap, (1.0, 1.0)
@@ -68,13 +71,21 @@ def getFutureGeneratorData(dfISO, cap_rate=1.00, vre_mix='low'):
     vre_coef = VRE_MIX[vre_mix]
 
     futureTotalCap = initTotalCap * cap_rate
-    futureTotalVRE = futureTotalCap * vre_coef
-    futureTotalNonVRE = futureTotalCap - futureTotalVRE
+    futureTotalES = EStotalCap
+    futureTotalVRE = (futureTotalCap - EStotalCap) * vre_coef
+    futureTotalNonVRE = futureTotalCap - futureTotalVRE - futureTotalES
 
-    dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind', 'ES'])] *= (futureTotalVRE / initTotalVRE)
-    dfISOAdj['Nameplate Capacity (MW)'].loc[~dfISOAdj['Fuel Type'].isin(['Solar', 'Wind', 'ES'])] *= (futureTotalNonVRE / initTotalnonVRE)
+    # Selecting all columns from the 5th column onwards
+    cols_to_modify = dfISOAdj.columns[5:]
 
-    ratios = (futureTotalVRE / initTotalVRE, futureTotalNonVRE / initTotalnonVRE)
+    # Modify the DataFrame in place
+    dfISOAdj.loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind']), cols_to_modify] *= (futureTotalVRE / initTotalVRE)
+    dfISOAdj.loc[dfISOAdj['Fuel Type'] == 'ES', cols_to_modify] *= (futureTotalES / initTotalES)
+    dfISOAdj.loc[~dfISOAdj['Fuel Type'].isin(['Solar', 'Wind', 'ES']), cols_to_modify] *= (futureTotalNonVRE / initTotalnonVRE)
+
+    assert (dfISOAdj.iloc[:, 5:6].to_numpy() >= dfISOAdj.iloc[:, 6:].to_numpy()).all(axis=1).all()
+
+    ratios = (futureTotalVRE / initTotalVRE, futureTotalNonVRE / initTotalnonVRE, futureTotalES / initTotalES)
         
     return dfISOAdj, futureTotalCap, ratios
 

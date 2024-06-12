@@ -1,7 +1,8 @@
 #!/bin/bash
 
-loads="low medium high"
-vres="low medium high"
+loads="high"
+# vres="low medium high"
+vres="medium"
 
 # echo "---------------------- Running Load Forecast ----------------------"
 # for load_rate in $loads; do 
@@ -10,24 +11,21 @@ vres="low medium high"
 # done
 
 echo "---------------------- Running Forecast Simulation ----------------------"
-# loads="high"
-# for vre in $vres; do 
-#     for load_rate in $loads; do 
-#         echo "---------------------- Forecast Simulation with load rate: $load_rate and vre mix: $vre"
-#         python3 generationRA.py --ISO ISNE --load-rate $load_rate --vre-mix $vre --markov-cons 5 --verbose False
-#     done
-# done
-# python3 generationRA.py --ISO ISNE --load-rate high --vre-mix high --markov-cons 1 --verbose False --esCharge 0.25
-
-
-# echo "---------------------- Running PfP Simulation ----------------------"
-# python3 main.py --ISO ISNE --load-rate high --vre-mix high --markov-cons 1 --verbose False --esCharge 0.25
-# python3 main.py --ISO ISNE --load-rate high --vre-mix low --markov-cons 1 --verbose False 
-# loads="high"
-# vres="high"
+loads="high"
 for vre in $vres; do 
     for load_rate in $loads; do 
-        for es in 0.25 0.5 0.75 1; do
+        echo "---------------------- Forecast Simulation with load rate: $load_rate and vre mix: $vre"
+        python3 generationRA.py --ISO ISNE --load-rate $load_rate --vre-mix $vre --markov-cons 1 --verbose False
+    done
+done
+
+
+echo "---------------------- Running PfP Simulation ----------------------"
+loads="high"
+vres="medium"
+for vre in $vres; do 
+    for load_rate in $loads; do 
+        for es in 0.0 0.5 1.0; do
             echo "---------------------- Forecast Simulation with load rate: $load_rate and vre mix: $vre"
             python3 main.py --ISO ISNE --load-rate $load_rate --vre-mix $vre --markov-cons 1 --verbose False --vreOut --esCharge $es
         done
