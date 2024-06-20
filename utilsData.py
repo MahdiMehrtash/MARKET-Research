@@ -58,7 +58,7 @@ def getHourlyGen(ISO='ISNE', verbose=False):
     return dfHourlySolar, dfHourlyWind
 
 
-def getFutureGeneratorData(dfISO, cap_rate=1.00, vre_mix='low', EStotalCap=1000.0):
+def getFutureGeneratorData(dfISO, cap_rate=1.00, vre_mix='low', EStotalCap=1000.0, LDtotalCap=0.0):
     dfISOAdj = dfISO.copy()
     initTotalCap = sum(dfISOAdj['Nameplate Capacity (MW)'].to_list())
     initTotalVRE = sum(dfISOAdj['Nameplate Capacity (MW)'].loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind'])].to_list())
@@ -72,16 +72,26 @@ def getFutureGeneratorData(dfISO, cap_rate=1.00, vre_mix='low', EStotalCap=1000.
 
     futureTotalCap = initTotalCap * cap_rate
     futureTotalES = EStotalCap
-    futureTotalVRE = (futureTotalCap - EStotalCap) * vre_coef
-    futureTotalNonVRE = futureTotalCap - futureTotalVRE - futureTotalES
+    futureTotalLD = LDtotalCap
+    futureTotalVRE = (futureTotalCap - EStotalCap - LDtotalCap) * vre_coef
+    futureTotalNonVRE = futureTotalCap - futureTotalVRE - futureTotalES - futureTotalLD
 
     # Selecting all columns from the 5th column onwards
     cols_to_modify = dfISOAdj.columns[5:]
-
     # Modify the DataFrame in place
     dfISOAdj.loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind']), cols_to_modify] *= (futureTotalVRE / initTotalVRE)
     dfISOAdj.loc[dfISOAdj['Fuel Type'] == 'ES', cols_to_modify] *= (futureTotalES / initTotalES)
     dfISOAdj.loc[~dfISOAdj['Fuel Type'].isin(['Solar', 'Wind', 'ES']), cols_to_modify] *= (futureTotalNonVRE / initTotalnonVRE)
+
+    # To add Long Duration Storage
+    dfDummy = dfISOAdj.loc[0].copy()
+    dfDummyRepeated = pd.concat([dfDummy.to_frame().T] * 10, ignore_index=True)
+    dfDummyRepeated[dfDummyRepeated.columns[0]] = range(-1, -11, -1)
+    dfDummyRepeated[dfDummyRepeated.columns[1:5]] = 'LD'
+    dfDummyRepeated[dfDummyRepeated.columns[5]] = LDtotalCap / 10
+    dfDummyRepeated[dfDummyRepeated.columns[-12:]] = LDtotalCap * 0.8 / 10
+    
+    dfISOAdj = pd.concat([dfISOAdj, dfDummyRepeated], ignore_index=True)
 
     assert (dfISOAdj.iloc[:, 5:6].to_numpy() >= dfISOAdj.iloc[:, 6:].to_numpy()).all(axis=1).all()
 

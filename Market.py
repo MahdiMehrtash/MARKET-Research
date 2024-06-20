@@ -19,7 +19,7 @@ class Market:
                 tmp = gen.currentCap()
                 if tmp > 0:
                     totalAvailableCap += np.minimum(gen.currentCap(), gen.MaxCap * gen.dischargeRate)
-                    gen.hoursRemaining -= 1 #decharge the battery
+                    gen.hoursRemaining = np.maximum(0.0, gen.hoursRemaining - 1) #decharge the battery
             else:
                 totalAvailableCap += gen.currentCap()
         return totalAvailableCap

@@ -56,6 +56,7 @@ if __name__ == "__main__":
     parser.add_argument('--markov-cons', type=int, default=1, help='Number of simulations to run.')
     parser.add_argument('--esCharge', type=float, default=1.0, help='ESs charge level @ CSCs.')
     parser.add_argument('--EStotalCap', type=float, default=2000.0, help='2000MW of Batteries.')
+    parser.add_argument('--LDtotalCap', type=float, default=500.0, help='500MW of Batteries.')
     parser.add_argument('--verbose', type=bool, default=False)
 
     args = parser.parse_args()
@@ -71,7 +72,8 @@ if __name__ == "__main__":
     RA = False
     while RA is False:
         print('capacity increase rate:', cap_rate)
-        dfISOAdj, totalCapAdj, adjRatios = getFutureGeneratorData(dfISO, cap_rate=cap_rate, vre_mix=args.vre_mix, EStotalCap=args.EStotalCap)
+        dfISOAdj, totalCapAdj, adjRatios = getFutureGeneratorData(dfISO, cap_rate=cap_rate, vre_mix=args.vre_mix,
+                                                                     EStotalCap=args.EStotalCap, LDtotalCap=args.LDtotalCap)
         dfHourlySolarAdj, dfHourlyWindAdj = getFutureGenerationData(dfHourlySolar, dfHourlyWind, adjRatios)
 
         print('Total Capacity: ', totalCapAdj)

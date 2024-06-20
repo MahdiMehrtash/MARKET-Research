@@ -50,7 +50,8 @@ if __name__ == "__main__":
     dfHourlyLoad, dfHourlySolar, dfHourlyWind, dfISO, info = getFutureData(ISO=args.ISO, verbose=args.verbose, path='data/forecast/' , 
                                                                            load_rate=args.load_rate, vre_mix=args.vre_mix)
     
-    numGenerators, totalCap, adjRatios, cap_rate, LOLE = info[0][0], info[1][0], info[2], info[3][0], info[4][0]
+    __, totalCap, adjRatios, cap_rate, LOLE = info[0][0], info[1][0], info[2], info[3][0], info[4][0]
+    numGenerators = len(dfISO.index)
     print('Total Capacity: ', totalCap, 'Number of Generators: ', numGenerators, 'LOLE: ', LOLE)
 
     # Get the Minimum Reserve Requirement for CSC
@@ -59,7 +60,6 @@ if __name__ == "__main__":
     
     # Get the GenCos and CSO
     genCos =  getGenCos(numGenerators, dfISO, esCharge=args.esCharge)
-    # dfCSO = pd.read_csv('data/CSO2023.csv', skiprows=0, index_col=None)
 
     # Run the Market Simulation
     payments = []

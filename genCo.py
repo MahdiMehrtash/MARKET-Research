@@ -5,7 +5,7 @@ import pandas as pd
 # Based on https://www.iso-ne.com/static-assets/documents/genrtion_resrcs/gads/class_ave_2010.pdf
 FOR_dict = {'Landfill Gas': 0.04, 'Gas': 0.04, 'Gas-Other': 0.04,
             'Oil': 0.13, 'Coal': 0.08, \
-            'Hydro': 0.07, 'PS': 0.07, 'Nuclear': 0.01, \
+            'Hydro': 0.07, 'LD': 0.07, 'Nuclear': 0.01, \
             'Refuse/Woods': 0.09,\
             'Solar': 0.07, 'Wind': 0.07, 'ES':0.07, 'Other': 0.08}
 
@@ -23,16 +23,42 @@ class GenCo:
 
     def currentCap(self):
         self.availableCap = self.MaxCap * np.random.choice(2, 1, p=[self.FOR, 1-self.FOR])
-        if self.fuelType in ['ES'] and self.hoursRemaining == 0:
-            self.availableCap = 0
+        if self.fuelType in ['ES']:
+            self.availableCap = np.maximum(0.0, np.minimum(1, self.hoursRemaining) * self.MaxCap * self.dischargeRate)
         return self.availableCap
     
-    def updateCSO(self, dfISO, cap_rate, adj_rate, month, vreOut=False):
+    def updateCSO(self, dfISO, month, vreOut=False):
         if self.fuelType in ['Wind', 'Solar', 'ES'] and vreOut:
             self.CapObl = 0.0
             return
         if len(dfISO[dfISO['Fuel Type'] == self.fuelType]) > 0:
             self.CapObl = dfISO[dfISO['ID'] == self.ID][month].item()
+            
+            if self.CapObl > self.MaxCap:
+                print(self.ID, self.fuelType, self.CapObl, self.MaxCap)
+                raise ValueError
+            assert self.CapObl >= 0.0
+            assert self.CapObl <= self.MaxCap
+        else:
+            self.CapObl = 0.0
+
+
+    def updateCSOinFCA(self, dfISO, currentCSO, currentP1, P2, vreOut=False):
+        if self.fuelType in ['Wind', 'Solar', 'ES'] and vreOut:
+            self.CapObl = 0.0
+            return
+        if self.ID in dfISO['ID'].to_list():
+            xQC = dfISO[dfISO['ID'] == self.ID]['FCA Qual'].item()
+            sumOfLoads = 20000 * 10
+            # p1: $/kW-month or k$/MW-month
+            # p2: k$/MWh
+            # print((P2 / (currentP1 * 12)) * sumOfLoads, currentCSO)
+            # raise
+            # print((P2 / (currentP1 * 12)) * sumOfLoads - currentCSO, xQC)
+            if (P2 / (currentP1 * 12)) * sumOfLoads - currentCSO >= xQC:
+                self.CapObl = 0.0
+            else:
+                self.CapObl = xQC
             
             if self.CapObl > self.MaxCap:
                 print(self.ID, self.fuelType, self.CapObl, self.MaxCap)
