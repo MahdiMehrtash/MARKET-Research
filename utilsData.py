@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 pd.options.mode.chained_assignment = None  
 
 # Constants
-VRE_MIX = {'low':0.3, 'medium':0.5, 'high':0.7}
+VRE_MIX = {'low':0.4, 'medium':0.5, 'high':0.6}
 LOAD_ADJ = {'low':0.95, 'medium':1.0, 'high':1.05}
 
 # fuelDict = {'LFG': 'Gas', 'NG': 'Gas', 'DFO': 'Gas', 'KER': 'Gas',\
@@ -84,14 +84,15 @@ def getFutureGeneratorData(dfISO, cap_rate=1.00, vre_mix='low', EStotalCap=1000.
     dfISOAdj.loc[~dfISOAdj['Fuel Type'].isin(['Solar', 'Wind', 'ES']), cols_to_modify] *= (futureTotalNonVRE / initTotalnonVRE)
 
     # To add Long Duration Storage
-    dfDummy = dfISOAdj.loc[0].copy()
-    dfDummyRepeated = pd.concat([dfDummy.to_frame().T] * 10, ignore_index=True)
-    dfDummyRepeated[dfDummyRepeated.columns[0]] = range(-1, -11, -1)
-    dfDummyRepeated[dfDummyRepeated.columns[1:5]] = 'LD'
-    dfDummyRepeated[dfDummyRepeated.columns[5]] = LDtotalCap / 10
-    dfDummyRepeated[dfDummyRepeated.columns[-12:]] = LDtotalCap * 0.8 / 10
+    if True:
+        dfDummy = dfISOAdj.loc[0].copy()
+        dfDummyRepeated = pd.concat([dfDummy.to_frame().T] * 10, ignore_index=True)    
+        dfDummyRepeated['ID'] = range(-1, -11, -1)
+        dfDummyRepeated[dfDummyRepeated.columns[1:5]] = 'LD'  
+        dfDummyRepeated[['Nameplate Capacity (MW)']] = LDtotalCap / 10
+        dfDummyRepeated[dfDummyRepeated.columns[-12:]] = LDtotalCap * 0.8 / 10
     
-    dfISOAdj = pd.concat([dfISOAdj, dfDummyRepeated], ignore_index=True)
+        dfISOAdj = pd.concat([dfISOAdj, dfDummyRepeated], ignore_index=True)
 
     assert (dfISOAdj.iloc[:, 5:6].to_numpy() >= dfISOAdj.iloc[:, 6:].to_numpy()).all(axis=1).all()
 

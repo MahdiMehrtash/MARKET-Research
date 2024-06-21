@@ -76,7 +76,7 @@ if __name__ == "__main__":
             hourEnding = dfHourlyLoad.iloc[hour]['Hour Ending']
             month = date.strftime('%B')
             if last_month != month:
-                for gen in genCos: gen.updateCSO(dfISO, cap_rate, adjRatios, month, vreOut=args.vreOut);
+                for gen in genCos: gen.updateCSO(dfISO, month, vreOut=args.vreOut);
                 last_month = month
                 totalCSO = sum([gen.CapObl for gen in genCos])
 

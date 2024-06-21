@@ -3,10 +3,11 @@ import matplotlib.pyplot as plt
 from datetime import datetime
 import pandas as pd
 # Based on https://www.iso-ne.com/static-assets/documents/genrtion_resrcs/gads/class_ave_2010.pdf
+# and https://www.iso-ne.com/static-assets/documents/2023/05/a04_05312023_pspc_adcr_availabilities-fcff6c70.pdf
 FOR_dict = {'Landfill Gas': 0.04, 'Gas': 0.04, 'Gas-Other': 0.04,
             'Oil': 0.13, 'Coal': 0.08, \
             'Hydro': 0.07, 'LD': 0.07, 'Nuclear': 0.01, \
-            'Refuse/Woods': 0.09,\
+            'Refuse/Woods': 0.09, 'Demand': 0.10,\
             'Solar': 0.07, 'Wind': 0.07, 'ES':0.07, 'Other': 0.08}
 
 class GenCo:
