@@ -7,7 +7,7 @@ import pandas as pd
 FOR_dict = {'Landfill Gas': 0.04, 'Gas': 0.04, 'Gas-Other': 0.04,
             'Oil': 0.13, 'Coal': 0.08, \
             'Hydro': 0.07, 'LD': 0.07, 'Nuclear': 0.01, \
-            'Refuse/Woods': 0.09, 'Demand': 0.10,\
+            'Refuse/Woods': 0.09, 'Demand': 0.17,\
             'Solar': 0.07, 'Wind': 0.07, 'ES':0.07, 'Other': 0.08}
 
 class GenCo:
@@ -50,12 +50,13 @@ class GenCo:
             return
         if self.ID in dfISO['ID'].to_list():
             xQC = dfISO[dfISO['ID'] == self.ID]['FCA Qual'].item()
-            sumOfLoads = 20000 * 10
+            sumOfLoads = 20000 * 20
             # p1: $/kW-month or k$/MW-month
-            # p2: k$/MWh
+            # p2: 3.5 k$/MWh
             # print((P2 / (currentP1 * 12)) * sumOfLoads, currentCSO)
             # raise
             # print((P2 / (currentP1 * 12)) * sumOfLoads - currentCSO, xQC)
+            print((P2 / (currentP1 * 12)) * sumOfLoads - currentCSO, (P2 / (currentP1 * 12)) * sumOfLoads >= currentCSO + xQC)
             if (P2 / (currentP1 * 12)) * sumOfLoads - currentCSO >= xQC:
                 self.CapObl = 0.0
             else:
@@ -69,14 +70,14 @@ class GenCo:
         else:
             self.CapObl = 0.0
 
-def getGenCos(numGen, df=None, esCharge=None):
+def getGenCos(df=None, esCharge=None):
     genCos = []
     MaxCaps = df['Nameplate Capacity (MW)'].to_list()
     fuelTypes = df['Fuel Type'].to_list()
     IDs = df['ID'].to_list()
 
 
-    for i in range(numGen):
+    for i in range(len(df)):
         MaxCap = MaxCaps[i] 
         fuelType = fuelTypes[i]
         obligation = -1
@@ -115,6 +116,7 @@ def plotResults(payments, genCos, numGen, info, markov_cons=1):
             paymentsByFuel[genco.fuelType]  = payments[:, i].sum()
             csoByFuel[genco.fuelType] = genco.CapObl
 
+    # Edit Fix CSO calculation
     BPR = 3
     print(paymentsByFuel)
     print(csoByFuel)

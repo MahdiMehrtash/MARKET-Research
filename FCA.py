@@ -10,13 +10,15 @@ from main import getFutureData
 
 def demandCurve(x):
     assert x >= 0.0
-    cnt1x = 28.0
+    cnt1x = 25.0
     cnt2x = 35.0
+    maxPrice = 14.5
+    # maxPrice = 14.5
 
     if x <= cnt1x:
-        return 14.5 #$/kW-month
+        return maxPrice #$/kW-month
     else:
-        return np.maximum(14.5 - 14.5/(cnt2x-cnt1x) * (x - cnt1x), 0.0)
+        return np.maximum(maxPrice - maxPrice/(cnt2x-cnt1x) * (x - cnt1x), 0.0)
 
 if __name__ == "__main__":
 
@@ -42,8 +44,9 @@ if __name__ == "__main__":
 
     
     # Get the GenCos and CSO
-    genCos =  getGenCos(numGenerators, dfISO, esCharge=args.esCharge)
+    genCos =  getGenCos(dfISO, esCharge=args.esCharge)
     for gen in genCos: gen.updateCSO(dfISO, 'FCA Qual', vreOut=args.vreOut);
+    totalCSO = np.sum([gen.CapObl for gen in genCos])
 
     previousCSO = -1.0
     while True:

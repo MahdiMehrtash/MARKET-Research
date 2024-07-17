@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# loads="low medium high"
 loads="medium"
 vres="high"
 
@@ -10,20 +9,20 @@ vres="high"
 #     python3 loadForecast.py --ISO ISNE --load-rate $load_rate --verbose False
 # done
 
-echo "---------------------- Running Forecast Simulation ----------------------"
-# loads="medium"
-# vres="high"
-for vre in $vres; do 
-    for load_rate in $loads; do 
-        echo "---------------------- Forecast Simulation with load rate: $load_rate and vre mix: $vre"
-        python3 generationRA.py --ISO ISNE --load-rate $load_rate --vre-mix $vre --markov-cons 1 --verbose False
-    done
-done
+# echo "---------------------- Running Forecast Simulation ----------------------"
+# # loads="medium"
+# # vres="high"
+# for vre in $vres; do 
+#     for load_rate in $loads; do 
+#         echo "---------------------- Forecast Simulation with load rate: $load_rate and vre mix: $vre"
+#         python3 generationRA.py --ISO ISNE --load-rate $load_rate --vre-mix $vre --markov-cons 1 --verbose False
+#     done
+# done
 
 
 # echo "---------------------- Running PfP Simulation ----------------------"
-# # loads="medium"
-# # vres="high"
+# loads="medium"
+# vres="high"
 for vre in $vres; do 
     for load_rate in $loads; do 
         for es in 0.1; do
@@ -35,10 +34,10 @@ done
 
 # # loads="medium"
 # # vres="medium"
-# # for vre in $vres; do 
-# #     for load_rate in $loads; do 
-# #         python3 FCA.py --ISO ISNE --load-rate $load_rate --vre-mix $vre --verbose False --esCharge 1 
-# #     done
-# # done
+# for vre in $vres; do 
+#     for load_rate in $loads; do 
+#         python3 FCA.py --ISO ISNE --load-rate $load_rate --vre-mix $vre --verbose False --esCharge 1 
+#     done
+# done
 
 

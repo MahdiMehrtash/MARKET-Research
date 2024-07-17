@@ -59,7 +59,7 @@ if __name__ == "__main__":
     MRR = capacities[0] + 0.5 * capacities[1]
     
     # Get the GenCos and CSO
-    genCos =  getGenCos(numGenerators, dfISO, esCharge=args.esCharge)
+    genCos =  getGenCos(dfISO, esCharge=args.esCharge)
 
     # Run the Market Simulation
     payments = []

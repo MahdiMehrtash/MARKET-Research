@@ -74,12 +74,13 @@ if __name__ == "__main__":
         print('capacity increase rate:', cap_rate)
         dfISOAdj, totalCapAdj, adjRatios = getFutureGeneratorData(dfISO, cap_rate=cap_rate, vre_mix=args.vre_mix,
                                                                      EStotalCap=args.EStotalCap, LDtotalCap=args.LDtotalCap)
+        
         dfHourlySolarAdj, dfHourlyWindAdj = getFutureGenerationData(dfHourlySolar, dfHourlyWind, adjRatios)
 
         print('Total Capacity: ', totalCapAdj)
 
         # Get the GenCos
-        genCos =  getGenCos(numGenerators, dfISOAdj, esCharge=args.esCharge)
+        genCos =  getGenCos(dfISOAdj, esCharge=args.esCharge)
         
         market = Market(MRR=[])
         RA, lole = getRA(args.markov_cons, market, genCos, dfHourlyLoadAdj, dfHourlySolarAdj, dfHourlyWindAdj)
