@@ -96,17 +96,17 @@ def getGenCos(df=None, esCharge=None):
 
 
 
-def plotResults(payments, genCos, numGen, info, markov_cons=1):
+def plotResults(payments, genCos, info, markov_cons=1):
     bins=50
     print(payments.shape)
     payed = payments.sum(axis=0)
-    print(payed.shape)
+    # print(payed.shape)
     plt.hist(payed / markov_cons, bins=bins)
     plt.xlabel('Payments K$')
     plt.ylabel('Frequency')
     plt.yscale('log')
     plt.title('Average Payments Distribution over {} runs'.format(markov_cons))
-    plt.savefig('Payments/Load-' + info[0] + '/paymentsdist' + '-' + info[1] + '-' + info[2] + '.pdf')
+    plt.savefig('Payments/Load-' + info[0] + '/paymentsdist' + '-' + info[1] + '-' + info[2] + info[3] + '.pdf')
     plt.show(block=False)
     plt.pause(3)
     plt.close()
@@ -124,8 +124,8 @@ def plotResults(payments, genCos, numGen, info, markov_cons=1):
 
     # Edit Fix CSO calculation
     BPR = 3
-    print(paymentsByFuel)
-    print(csoByFuel)
+    print(info[3] + ': ',  paymentsByFuel)
+    # print(csoByFuel)
     index = np.argsort(list(paymentsByFuel.values()))
     index = index[::-1]
     plt.figure(figsize=(15, 5))
@@ -134,7 +134,7 @@ def plotResults(payments, genCos, numGen, info, markov_cons=1):
     # plt.xticks(fontsize = 8) 
     plt.ylabel('Payments M$')
     plt.legend()
-    plt.savefig('Payments/Load-' + info[0] + '/paymentsByFuel' + '-' + info[1] + '-' + info[2] + '.pdf')
+    plt.savefig('Payments/Load-' + info[0] + '/paymentsByFuel' + '-' + info[1] + '-' + info[2] + info[3] + '.pdf')
     plt.show(block=False)
     plt.pause(3)
     plt.close()

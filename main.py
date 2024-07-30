@@ -7,7 +7,7 @@ from tqdm import tqdm
 import pdb
 
 from genCo import getGenCos, plotResults
-from Market import Market, PFP
+from Market import Market, Incentive
 
 def getFutureData(ISO='ISNE', verbose=False, path='data/forecast/', load_rate='high', vre_mix='high'):
     if ISO == 'ISNE':
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     genCos =  getGenCos(dfISO, esCharge=args.esCharge)
 
     # Run the Market Simulation
-    payments = []
+    paymentsPFP, paymentsCP = [], []
     market = Market(MRR=MRR)
     last_month = None
     totalCSO = -1
@@ -85,17 +85,18 @@ if __name__ == "__main__":
                 totalCSO = sum([gen.CapObl for gen in genCos])
 
             loads = [hourlyLoad, hourlynegativeLoadSolar, hourlynegativeLoadWind]
-            payment = market.run(numGen=numGenerators, genCos=genCos, totalCSO=totalCSO, load=loads, date=[date,hourEnding] , verbose=False)
-            payment = np.concatenate([x if isinstance(x, np.ndarray) else [x] for x in payment])
-            payments.append(payment)
-            # break
+            paymentPFP, paymentCP = market.run(numGen=numGenerators, genCos=genCos, totalCSO=totalCSO, load=loads, date=[date,hourEnding] , verbose=False)
+            paymentPFP = np.concatenate([x if isinstance(x, np.ndarray) else [x] for x in paymentPFP])
+            paymentCP = np.concatenate([x if isinstance(x, np.ndarray) else [x] for x in paymentCP])
+            paymentsPFP.append(paymentPFP); paymentsCP.append(paymentCP)
 
 
             
     print('Average CSC: ', market.numberOfCSCs / args.markov_cons)
     
-    payments = np.array(payments)
-    print('Total Payments:', payments.sum())
-    plotResults(payments, genCos, numGenerators, [args.load_rate, args.vre_mix, str(args.esCharge)], markov_cons=args.markov_cons)
+    paymentsPFP = np.array(paymentsPFP); paymentsCP = np.array(paymentsCP)
+    print('Total PFP Payments:', paymentsPFP.sum(), 'Total CP Payments:', paymentsCP.sum())
+    plotResults(paymentsPFP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'PfP'], markov_cons=args.markov_cons)
+    plotResults(paymentsCP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'CP'], markov_cons=args.markov_cons)
 
 
