@@ -1,5 +1,7 @@
 import numpy as np
 from csv import DictWriter
+from datetime import datetime
+
 
 class Market:
     def __init__(self, MRR=1600):
@@ -8,6 +10,7 @@ class Market:
 
         with open('Payments/log.csv', 'a') as f:
             f.write('Running a new code' + '\n')
+            f.write( datetime.now().strftime("%d/%m/%Y %H:%M:%S ") + '\n')
         f.close()
 
     def getCurrentCap(self, genCos):
@@ -38,14 +41,17 @@ class Market:
         if totalAvailableCap - hourlyLoad + hourlynegativeLoadSolar + hourlynegativeLoadWind  < self.MRR:
             self.numberOfCSCs += 1
             # open a csv file and append the date and time
-            logDict = {'Date': date[0],\
+            logDict = {'Date': date[0].strftime("%d/%m/%Y"),\
                        'hour': date[1],\
                         'totalAvailableCap': totalAvailableCap,\
                         'Hourly Load': hourlyLoad,\
                         'Hourly Negative Load Solar': hourlynegativeLoadSolar,\
-                        'Hourly Negative Load Wind': hourlynegativeLoadWind}
+                        'Hourly Negative Load Wind': hourlynegativeLoadWind, \
+                        'MRR': self.MRR}
             with open('Payments/log.csv', 'a') as f_object:
                 dictwriter_object = DictWriter(f_object, fieldnames=logDict.keys())
+                if self.numberOfCSCs == 1:
+                    dictwriter_object.writeheader()  # Write the header
                 dictwriter_object.writerow(logDict)
                 f_object.close()
 

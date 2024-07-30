@@ -57,6 +57,9 @@ if __name__ == "__main__":
     # Get the Minimum Reserve Requirement for CSC
     capacities = list(dfISO['Nameplate Capacity (MW)'].sort_values(ascending=False))
     MRR = capacities[0] + 0.5 * capacities[1]
+
+    # @TODO: Add MRR for CAISO
+    print('add MRR for CAISO Here!')
     
     # Get the GenCos and CSO
     genCos =  getGenCos(dfISO, esCharge=args.esCharge)
@@ -76,6 +79,7 @@ if __name__ == "__main__":
             hourEnding = dfHourlyLoad.iloc[hour]['Hour Ending']
             month = date.strftime('%B')
             if last_month != month:
+                # Update CSO for the new month
                 for gen in genCos: gen.updateCSO(dfISO, month, vreOut=args.vreOut);
                 last_month = month
                 totalCSO = sum([gen.CapObl for gen in genCos])

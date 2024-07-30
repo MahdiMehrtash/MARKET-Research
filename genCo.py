@@ -44,23 +44,23 @@ class GenCo:
             self.CapObl = 0.0
 
 
-    def updateCSOinFCA(self, dfISO, currentCSO, currentP1, P2, vreOut=False):
+    def updateCSOinFCA(self, dfISO, currentCSO, currentP1, P2, sumOfLoads, vreOut=False):
+        lambdaCoef = 0.5
         if self.fuelType in ['Wind', 'Solar', 'ES'] and vreOut:
             self.CapObl = 0.0
             return
         if self.ID in dfISO['ID'].to_list():
             xQC = dfISO[dfISO['ID'] == self.ID]['FCA Qual'].item()
-            sumOfLoads = 20000 * 20
             # p1: $/kW-month or k$/MW-month
             # p2: 3.5 k$/MWh
             # print((P2 / (currentP1 * 12)) * sumOfLoads, currentCSO)
             # raise
             # print((P2 / (currentP1 * 12)) * sumOfLoads - currentCSO, xQC)
-            print((P2 / (currentP1 * 12)) * sumOfLoads - currentCSO, (P2 / (currentP1 * 12)) * sumOfLoads >= currentCSO + xQC)
+            # print((P2 / (currentP1 * 12)) * sumOfLoads - currentCSO, (P2 / (currentP1 * 12)) * sumOfLoads >= currentCSO + xQC)
             if (P2 / (currentP1 * 12)) * sumOfLoads - currentCSO >= xQC:
-                self.CapObl = 0.0
+                self.CapObl = 0.0 * lambdaCoef + self.CapObl * (1 - lambdaCoef)
             else:
-                self.CapObl = xQC
+                self.CapObl = xQC * lambdaCoef + self.CapObl * (1 - lambdaCoef)
             
             if self.CapObl > self.MaxCap:
                 print(self.ID, self.fuelType, self.CapObl, self.MaxCap)
@@ -69,6 +69,12 @@ class GenCo:
             assert self.CapObl <= self.MaxCap
         else:
             self.CapObl = 0.0
+
+    def getBid(self, dfISO, currentCSO, P2, sumOfLoads, vreOut=False):
+        if self.fuelType in ['Wind', 'Solar', 'ES'] and vreOut:
+            return 0.0
+        
+        return P2 * sumOfLoads / (currentCSO + dfISO[dfISO['ID'] == self.ID]['FCA Qual'].item())
 
 def getGenCos(df=None, esCharge=None):
     genCos = []

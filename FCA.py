@@ -10,13 +10,12 @@ from main import getFutureData
 
 def demandCurve(x):
     assert x >= 0.0
-    cnt1x = 25.0
-    cnt2x = 35.0
+    cnt1x = 20.0
+    cnt2x = 32.0
     maxPrice = 14.5
-    # maxPrice = 14.5
 
     if x <= cnt1x:
-        return maxPrice #$/kW-month
+        return maxPrice #$/kW-month or k$/MW-month
     else:
         return np.maximum(maxPrice - maxPrice/(cnt2x-cnt1x) * (x - cnt1x), 0.0)
 
@@ -47,20 +46,51 @@ if __name__ == "__main__":
     genCos =  getGenCos(dfISO, esCharge=args.esCharge)
     for gen in genCos: gen.updateCSO(dfISO, 'FCA Qual', vreOut=args.vreOut);
     totalCSO = np.sum([gen.CapObl for gen in genCos])
+    sumOfLoads = 20000 * 1
 
-    previousCSO = -1.0
-    while True:
-        priceP1 = demandCurve(totalCSO / 1000)
-        print('--Price P1: ', priceP1, 'Total CSO: ', totalCSO)
-        # Update CSO based on the current P1 price
-        for gen in genCos: gen.updateCSOinFCA(dfISO, currentCSO=totalCSO, currentP1=priceP1, P2=3.5, vreOut=args.vreOut);
-        totalCSO = np.sum([gen.CapObl for gen in genCos])
+    if False:
+        # Method 1: using the iteration on Demand Curve
+        previousCSO = -1.0
+        while True:
+            priceP1 = demandCurve(totalCSO / 1000)
+            print('--Price P1: ', priceP1, 'Total CSO: ', totalCSO)
+            # Update CSO based on the current P1 price
+            for gen in genCos: gen.updateCSOinFCA(dfISO, currentCSO=totalCSO, currentP1=priceP1, P2=3.5, sumOfLoads=sumOfLoads, vreOut=args.vreOut);
+            totalCSO = np.sum([gen.CapObl for gen in genCos])
 
 
-        if previousCSO == totalCSO:
-            break
-        else:
-            previousCSO = totalCSO
+            if previousCSO == totalCSO:
+                break
+            else:
+                previousCSO = totalCSO
+    else:
+        # Method 2: using the iteration on Demand Curve
+        for i in range(1):
+            # Get the bids
+            biddingList = []
+            for gen in genCos:
+                bid = gen.getBid(dfISO, currentCSO=totalCSO, P2=3.5, sumOfLoads=sumOfLoads, vreOut=args.vreOut)
+                fca_qual = dfISO[dfISO['ID'] == gen.ID]['FCA Qual'].item()
+                biddingList.append((bid, fca_qual))
+            
+            print(sum([qc for bid, qc in biddingList]))
+            print(max([bid for bid, qc in biddingList]))
+            # print(demandCurve(sum([qc for bid, qc in biddingList]) / 1000))
+            # print(biddingList)
+            # raise
+            # Clear the market
+            # Sort the list by the first element of each tuple
+            biddingList.sort(key=lambda x: x[0])
+            totalPayments, totalCSOCleared = 0.0, 0.0
+            for bid, qc in biddingList:
+                # print(totalPayments, totalCSOCleared, bid, qc)
+                totalPayments += bid
+                totalCSOCleared += qc
+
+                if bid > demandCurve(totalCSOCleared / 1000):
+                    break
+            totalCSO = totalCSOCleared
+        print('Total CSO: ', totalCSO, 'FCA Price: ', demandCurve(totalCSO / 1000))
 
 
 
