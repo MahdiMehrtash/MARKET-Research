@@ -32,7 +32,6 @@ def getFutureData(ISO='ISNE', verbose=False, path='data/forecast/', load_rate='h
 
 
 if __name__ == "__main__":
-
     parser = argparse.ArgumentParser(description='Run the Market Simulation and Calculate PfP.',
                                  formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--ISO', type=str, default='ISNE')
@@ -50,16 +49,15 @@ if __name__ == "__main__":
     dfHourlyLoad, dfHourlySolar, dfHourlyWind, dfISO, info = getFutureData(ISO=args.ISO, verbose=args.verbose, path='data/forecast/' , 
                                                                            load_rate=args.load_rate, vre_mix=args.vre_mix)
     
-    __, totalCap, adjRatios, cap_rate, LOLE = info[0][0], info[1][0], info[2], info[3][0], info[4][0]
+    __, totalCap, __, __, LOLE = info[0][0], info[1][0], info[2], info[3][0], info[4][0]
     numGenerators = len(dfISO.index)
     print('Total Capacity: ', totalCap, 'Number of Generators: ', numGenerators, 'LOLE: ', LOLE)
 
+    # @TODO: Choose MRR for each seperate ISO
+    print('Choose MRR for each seperate ISO!')
     # Get the Minimum Reserve Requirement for CSC
     capacities = list(dfISO['Nameplate Capacity (MW)'].sort_values(ascending=False))
     MRR = capacities[0] + 0.5 * capacities[1]
-
-    # @TODO: Add MRR for CAISO
-    print('add MRR for CAISO Here!')
     
     # Get the GenCos and CSO
     genCos =  getGenCos(dfISO, esCharge=args.esCharge)
@@ -67,8 +65,7 @@ if __name__ == "__main__":
     # Run the Market Simulation
     paymentsPFP, paymentsCP = [], []
     market = Market(MRR=MRR)
-    last_month = None
-    totalCSO = -1
+    last_month = None; totalCSO = -1
     for __ in range(args.markov_cons):
         for hour in tqdm(range(dfHourlyLoad.index.stop - dfHourlyLoad.index.start)):
             hourlyLoad = dfHourlyLoad.iloc[hour]['Total Load']
@@ -90,13 +87,12 @@ if __name__ == "__main__":
             paymentCP = np.concatenate([x if isinstance(x, np.ndarray) else [x] for x in paymentCP])
             paymentsPFP.append(paymentPFP); paymentsCP.append(paymentCP)
 
-
-            
+        
     print('Average CSC: ', market.numberOfCSCs / args.markov_cons)
     
     paymentsPFP = np.array(paymentsPFP); paymentsCP = np.array(paymentsCP)
     print('Total PFP Payments:', paymentsPFP.sum(), 'Total CP Payments:', paymentsCP.sum())
-    plotResults(paymentsPFP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'PfP'], markov_cons=args.markov_cons)
-    plotResults(paymentsCP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'CP'], markov_cons=args.markov_cons)
+    # plotResults(paymentsPFP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'PfP'], markov_cons=args.markov_cons)
+    # plotResults(paymentsCP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'CP'], markov_cons=args.markov_cons)
 
 

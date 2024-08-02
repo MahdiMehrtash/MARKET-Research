@@ -55,11 +55,11 @@ class Market:
                 dictwriter_object.writerow(logDict)
                 f_object.close()
 
-            pfp = Incentive(genCos, self.MRR)
-            paymentsPFP = pfp.calcPFP(hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, totalCSO)
+            incentive = Incentive(genCos, self.MRR)
+            paymentsPFP = incentive.calcPFP(hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, totalCSO)
             paymentsPFP = np.array(paymentsPFP)
 
-            paymentsCP = pfp.calcCP(hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, totalCSO)
+            paymentsCP = incentive.calcCP(hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, totalCSO)
             paymentsCP = np.array(paymentsCP)
             return paymentsPFP, paymentsCP
         else:
@@ -92,15 +92,15 @@ class Incentive:
         self.MRR = MRR
 
 
-    def calcPFP(self, hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, totalCSO, PPR=3.5):
+    def calcPFP(self, hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, totalCSO, PPR=9.337):
         perfScores = []
         #PRR is 3.5 K$ / MWh
         self.PFP_PPR = PPR
 
         # balancingRatio = (hourlyLoad + self.MRR) / self.totalCSO
-        # balancingRatio = (sum([genCo.availableCap for genCo in self.genCos if genCo.fuelType not in ['Solar', 'Wind']]) +\
-        #                          hourlynegativeLoadWind + hourlynegativeLoadSolar) / totalCSO
-        balancingRatio = (hourlyLoad + self.MRR)/totalCSO
+        balancingRatio = (sum([genCo.availableCap for genCo in self.genCos if genCo.fuelType not in ['Solar', 'Wind']]) +\
+                                 hourlynegativeLoadWind + hourlynegativeLoadSolar) / totalCSO
+        # balancingRatio = (hourlyLoad + self.MRR)/totalCSO
 
         # Calculate Wind and Solar separately
         solarCSO = sum([genCo.CapObl for genCo in self.genCos if genCo.fuelType == 'Solar'])
@@ -124,15 +124,13 @@ class Incentive:
         perfScores = np.array(perfScores)
         return perfScores * self.PFP_PPR
     
-    def calcCP(self, hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, totalCSO, CONE=0.3):
+    def calcCP(self, hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, totalCSO, CONE=0.35):
         perfScores = []
         # CONE is 0.3 K$ / MW-day
         self.CP_PPR = CONE * 365 / 30 # K$/MWh
 
         # balancingRatio = (hourlyLoad + self.MRR) / self.totalCSO
-        # balancingRatio = (sum([genCo.availableCap for genCo in self.genCos if genCo.fuelType not in ['Solar', 'Wind']]) +\
-        #                          hourlynegativeLoadWind + hourlynegativeLoadSolar) / totalCSO
-        balancingRatio = (hourlyLoad + self.MRR)/totalCSO
+        balancingRatio = hourlyLoad / totalCSO
 
 
         # Calculate Wind and Solar separately
@@ -151,8 +149,6 @@ class Incentive:
             elif genCo.fuelType == 'Wind':
                 perfScores.append(windScore / numWind)
             elif genCo.fuelType == 'Demand':
-                # print(balancingRatio)
-                # raise
                 perfScores.append((genCo.availableCap - genCo.CapObl))
             elif genCo.fuelType == 'Import':
                 perfScores.append((genCo.availableCap - 0))
