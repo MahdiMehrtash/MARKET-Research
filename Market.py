@@ -4,9 +4,10 @@ from datetime import datetime
 
 
 class Market:
-    def __init__(self, MRR=1600):
+    def __init__(self, MRR):
         self.numberOfCSCs = 0
-        self.MRR = MRR
+        self.numberOfPAIs = 0
+        self.MRR_PFP, self.MRR_CP = MRR[0], MRR[1]
 
         with open('Payments/log.csv', 'a') as f:
             f.write('Running a new code' + '\n')
@@ -38,7 +39,11 @@ class Market:
         hourlyLoad, hourlynegativeLoadSolar, hourlynegativeLoadWind = load
         if verbose:
             print('Total Available Capacity: ', totalAvailableCap, ' ,Load of the Day: ', load)
-        if totalAvailableCap - hourlyLoad + hourlynegativeLoadSolar + hourlynegativeLoadWind  < self.MRR:
+
+        incentive = Incentive(genCos)
+        realAvaialableCap = totalAvailableCap - hourlyLoad + hourlynegativeLoadSolar + hourlynegativeLoadWind
+        # ISONE
+        if  realAvaialableCap < self.MRR_PFP:
             self.numberOfCSCs += 1
             # open a csv file and append the date and time
             logDict = {'Date': date[0].strftime("%d/%m/%Y"),\
@@ -47,7 +52,7 @@ class Market:
                         'Hourly Load': hourlyLoad,\
                         'Hourly Negative Load Solar': hourlynegativeLoadSolar,\
                         'Hourly Negative Load Wind': hourlynegativeLoadWind, \
-                        'MRR': self.MRR}
+                        'MRR': self.MRR_PFP}
             with open('Payments/log.csv', 'a') as f_object:
                 dictwriter_object = DictWriter(f_object, fieldnames=logDict.keys())
                 if self.numberOfCSCs == 1:
@@ -55,21 +60,28 @@ class Market:
                 dictwriter_object.writerow(logDict)
                 f_object.close()
 
-            incentive = Incentive(genCos, self.MRR)
             paymentsPFP = incentive.calcPFP(hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, totalCSO)
             paymentsPFP = np.array(paymentsPFP)
+        else:
+            paymentsPFP = np.zeros((numGen, 1))
 
+
+        # PJM   
+        if realAvaialableCap  < self.MRR_CP:
+            self.numberOfPAIs += 1
             paymentsCP = incentive.calcCP(hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, totalCSO)
             paymentsCP = np.array(paymentsCP)
-            return paymentsPFP, paymentsCP
         else:
+            paymentsCP = np.zeros((numGen, 1))
+
+        if realAvaialableCap  >= np.maximum(self.MRR_PFP, self.MRR_CP):
             # ReCharge the Batteries
             for gen in genCos:
                 if gen.fuelType in ['ES']:
                     gen.hoursRemaining = np.minimum(gen.totalHours, gen.hoursRemaining + 1)
 
-            return np.zeros((numGen, 1)), np.zeros((numGen, 1))
-        
+        return paymentsPFP, paymentsCP
+    
     def RA(self, genCos, load, verbose=False):
         totalAvailableCap = self.getCurrentCap(genCos)
         hourlyLoad, hourlynegativeLoadSolar, hourlynegativeLoadWind = load
@@ -89,7 +101,7 @@ class Market:
 class Incentive:
     def __init__(self, gencos=[], MRR=None):
         self.genCos = gencos
-        self.MRR = MRR
+        # self.MRR = MRR
 
 
     def calcPFP(self, hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, totalCSO, PPR=9.337):
@@ -130,7 +142,8 @@ class Incentive:
         self.CP_PPR = CONE * 365 / 30 # K$/MWh
 
         # balancingRatio = (hourlyLoad + self.MRR) / self.totalCSO
-        balancingRatio = hourlyLoad / totalCSO
+        balancingRatio = (sum([genCo.availableCap for genCo in self.genCos if genCo.fuelType not in ['Solar', 'Wind']]) +\
+                                 hourlynegativeLoadWind + hourlynegativeLoadSolar) / totalCSO
 
 
         # Calculate Wind and Solar separately

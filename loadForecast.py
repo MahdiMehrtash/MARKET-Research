@@ -63,6 +63,7 @@ if __name__ == "__main__":
         plt.xlabel('Date')
         plt.ylabel('Load (MW)')
         plt.legend()
+        plt.savefig('data/forecast/load_rate_' + args.load_rate + '/loadComparison.pdf')
         plt.show(block=False)
         plt.pause(3)
         plt.close()

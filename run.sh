@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# loads="low medium high"
-# vres="low medium high"
+loads="low medium high"
+vres="low medium high"
 
 # echo "---------------------- Running Load Forecast ----------------------"
 # for load_rate in $loads; do 

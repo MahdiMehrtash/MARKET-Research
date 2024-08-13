@@ -57,14 +57,15 @@ if __name__ == "__main__":
     print('Choose MRR for each seperate ISO!')
     # Get the Minimum Reserve Requirement for CSC
     capacities = list(dfISO['Nameplate Capacity (MW)'].sort_values(ascending=False))
-    MRR = capacities[0] + 0.5 * capacities[1]
-    
+    MRR_PfP = capacities[0] + 0.5 * capacities[1]
+    MRR_CP = 1.5 * capacities[0] 
+    print('MRR PfP: ', MRR_PfP, ' vs. MRR CP: ', MRR_CP)
     # Get the GenCos and CSO
     genCos =  getGenCos(dfISO, esCharge=args.esCharge)
 
     # Run the Market Simulation
     paymentsPFP, paymentsCP = [], []
-    market = Market(MRR=MRR)
+    market = Market(MRR=[MRR_PfP, MRR_CP])
     last_month = None; totalCSO = -1
     for __ in range(args.markov_cons):
         for hour in tqdm(range(dfHourlyLoad.index.stop - dfHourlyLoad.index.start)):
@@ -88,11 +89,11 @@ if __name__ == "__main__":
             paymentsPFP.append(paymentPFP); paymentsCP.append(paymentCP)
 
         
-    print('Average CSC: ', market.numberOfCSCs / args.markov_cons)
+    print('Average CSC: ', market.numberOfCSCs / args.markov_cons, 'Average PAI: ', market.numberOfPAIs / args.markov_cons)
     
     paymentsPFP = np.array(paymentsPFP); paymentsCP = np.array(paymentsCP)
     print('Total PFP Payments:', paymentsPFP.sum(), 'Total CP Payments:', paymentsCP.sum())
-    # plotResults(paymentsPFP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'PfP'], markov_cons=args.markov_cons)
-    # plotResults(paymentsCP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'CP'], markov_cons=args.markov_cons)
+    plotResults(paymentsPFP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'PfP'], markov_cons=args.markov_cons)
+    plotResults(paymentsCP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'CP'], markov_cons=args.markov_cons)
 
 
