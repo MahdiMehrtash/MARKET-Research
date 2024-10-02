@@ -6,7 +6,7 @@ import argparse
 from tqdm import tqdm
 import pdb
 
-from genCo import getGenCos, plotResults
+from genCo import getGenCos, plotResults, plotRAAIMResults
 from Market import Market, Incentive
 
 def getFutureData(ISO='ISNE', verbose=False, path='data/forecast/', load_rate='high', vre_mix='high'):
@@ -51,10 +51,8 @@ if __name__ == "__main__":
     
     __, totalCap, __, __, LOLE = info[0][0], info[1][0], info[2], info[3][0], info[4][0]
     numGenerators = len(dfISO.index)
-    print('Total Capacity: ', totalCap, 'Number of Generators: ', numGenerators, 'LOLE: ', LOLE)
+    print('Total Capacity: ', totalCap, 'Number of Generators: ', numGenerators, 'LOLE: ', LOLE, 'Total CSO: ', sum(dfISO['June'].to_list()))
 
-    # @TODO: Choose MRR for each seperate ISO
-    print('Choose MRR for each seperate ISO!')
     # Get the Minimum Reserve Requirement for CSC
     capacities = list(dfISO['Nameplate Capacity (MW)'].sort_values(ascending=False))
     MRR_PfP = capacities[0] + 0.5 * capacities[1]
@@ -88,12 +86,15 @@ if __name__ == "__main__":
             paymentCP = np.concatenate([x if isinstance(x, np.ndarray) else [x] for x in paymentCP])
             paymentsPFP.append(paymentPFP); paymentsCP.append(paymentCP)
 
+    paymentRAAIM = market.RAAIM(genCos=genCos)
+
         
     print('Average CSC: ', market.numberOfCSCs / args.markov_cons, 'Average PAI: ', market.numberOfPAIs / args.markov_cons)
     
-    paymentsPFP = np.array(paymentsPFP); paymentsCP = np.array(paymentsCP)
-    print('Total PFP Payments:', paymentsPFP.sum(), 'Total CP Payments:', paymentsCP.sum())
+    paymentsPFP = np.array(paymentsPFP); paymentsCP = np.array(paymentsCP); paymentRAAIM = np.array(paymentRAAIM)
+    print('Total PFP Payments:', paymentsPFP.sum(), 'Total CP Payments:', paymentsCP.sum(), 'Total RAAIM Payments:', paymentRAAIM.sum())
     plotResults(paymentsPFP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'PfP'], markov_cons=args.markov_cons)
     plotResults(paymentsCP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'CP'], markov_cons=args.markov_cons)
+    plotRAAIMResults(paymentRAAIM, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'RAAIM'], markov_cons=args.markov_cons)
 
 

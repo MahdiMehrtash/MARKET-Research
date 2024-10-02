@@ -74,6 +74,10 @@ class Market:
         else:
             paymentsCP = np.zeros((numGen, 1))
 
+        # RAAIM
+        incentive.calcRAAIM(hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, date)
+        
+
         if realAvaialableCap  >= np.maximum(self.MRR_PFP, self.MRR_CP):
             # ReCharge the Batteries
             for gen in genCos:
@@ -81,6 +85,23 @@ class Market:
                     gen.hoursRemaining = np.minimum(gen.totalHours, gen.hoursRemaining + 1)
 
         return paymentsPFP, paymentsCP
+    
+    def RAAIM(self, genCos):
+        paymentsRAAIM = []
+        self.RAAIM_PPR = 3.79  # $/kW-month
+
+        for genCo in genCos:
+            availabilityFactor = genCo.avaialbility / genCo.AAHs
+            if availabilityFactor <= 0.945:
+                shortfall = 0.945 - availabilityFactor
+                paymentsRAAIM.append(int(shortfall * self.RAAIM_PPR * genCo.MaxCap))
+            elif availabilityFactor >= 0.985:
+                overperform = availabilityFactor - 0.985
+                paymentsRAAIM.append(int(overperform * self.RAAIM_PPR * genCo.MaxCap))
+            else:
+                paymentsRAAIM.append(0)
+        return paymentsRAAIM * 12
+
     
     def RA(self, genCos, load, verbose=False):
         totalAvailableCap = self.getCurrentCap(genCos)
@@ -112,6 +133,8 @@ class Incentive:
         # balancingRatio = (hourlyLoad + self.MRR) / self.totalCSO
         balancingRatio = (sum([genCo.availableCap for genCo in self.genCos if genCo.fuelType not in ['Solar', 'Wind']]) +\
                                  hourlynegativeLoadWind + hourlynegativeLoadSolar) / totalCSO
+        # print(balancingRatio)
+        # balancingRatio = np.minimum(1, balancingRatio)
         # balancingRatio = (hourlyLoad + self.MRR)/totalCSO
 
         # Calculate Wind and Solar separately
@@ -144,6 +167,7 @@ class Incentive:
         # balancingRatio = (hourlyLoad + self.MRR) / self.totalCSO
         balancingRatio = (sum([genCo.availableCap for genCo in self.genCos if genCo.fuelType not in ['Solar', 'Wind']]) +\
                                  hourlynegativeLoadWind + hourlynegativeLoadSolar) / totalCSO
+        balancingRatio = np.minimum(1, balancingRatio)
 
 
         # Calculate Wind and Solar separately
@@ -170,3 +194,60 @@ class Incentive:
 
         perfScores = np.array(perfScores)
         return perfScores * self.CP_PPR
+    
+    def calcRAAIM(self, hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, date):
+        Availability_dict = {'Landfill Gas': 0.9, 'Gas': 0.9, 'Gas-Other': 0.9,
+            'Oil': 0.92, 'Coal': 0.92, \
+            'Hydro': 0.95, 'LD': 0.92, 'Nuclear': 1.00, \
+            'Refuse/Woods': 0.92, 'Demand': 0.94,\
+            'Solar': 0.98, 'Wind': 1.00, 'ES':0.92, 'Other': 0.93}
+        
+        genericFuelTypes = ['Landfill Gas', 'Gas', 'Gas-Other', 'Oil', 'Coal', 'Hydro', 'Nuclear', 'Refuse/Woods', 'Wind', 'Solar']
+        baseRampFuelType = ['LD', 'Demand']
+        superRampFuelType = ['ES']
+        
+
+        def isAAH(type, date):
+            if type == 'generic':
+                try:
+                    date[1] = int(date[1])
+                except:
+                    return False
+                # print(date[1], list(range(0, 5)) ,date[1] in list(range(0, 5)))
+                if date[0].month in [3, 4, 5]:
+                    if date[1] in list(range(18, 23)): return True
+                else:
+                    if date[1] in list(range(17, 22)): return True
+            elif type == 'baseRamp':
+                if True:
+                    if date[1] in list(range(5, 23)): return True
+            elif type == 'superRamp':
+                if date[0].weekday() >= 5: return False # Weekends
+                if date[0].month in [3, 4, 5, 6, 7, 8]:
+                    if date[1] in list(range(14, 20)): return True
+                elif date[0].month in [9, 10]:
+                    if date[1] in list(range(16, 22)): return True
+                else:
+                    if date[1] in list(range(15, 21)): return True
+            return False
+
+        for genCo in self.genCos:
+            availability_prob = Availability_dict[genCo.fuelType]
+            if genCo.fuelType in genericFuelTypes:
+                if isAAH('generic', date):
+                    genCo.avaialbility += np.random.choice(2, 1, p=[1-availability_prob, availability_prob])
+                    genCo.AAHs += 1
+            elif genCo.fuelType in baseRampFuelType:
+                if isAAH('baseRamp', date):
+                    genCo.avaialbility += np.random.choice(2, 1, p=[1-availability_prob, availability_prob])
+                    genCo.AAHs += 1
+            elif genCo.fuelType in superRampFuelType:
+                if isAAH('superRamp', date):    
+                    genCo.avaialbility += np.random.choice(2, 1, p=[1-availability_prob, availability_prob])
+                    genCo.AAHs += 1
+            else:
+                print(genCo.fuelType)
+                raise ValueError('Fuel Type not recognized')
+            
+
+    

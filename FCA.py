@@ -5,7 +5,7 @@ from tqdm import tqdm
 import pdb
 
 from genCo import getGenCos, plotResults
-from Market import Market, PFP
+# from Market import Market, PFP
 from main import getFutureData
 
 def demandCurve(x):
@@ -40,29 +40,40 @@ if __name__ == "__main__":
     __, totalCap, adjRatios, cap_rate, LOLE = info[0][0], info[1][0], info[2], info[3][0], info[4][0]
     numGenerators = len(dfISO.index)
     print('Total Capacity: ', totalCap, 'Number of Generators: ', numGenerators, 'LOLE: ', LOLE)
-
+    print('Total Qualified Capacity: ', sum(dfISO['FCA Qual'].to_list()))
+    print('Non-VRE QC: ', sum(dfISO[~dfISO['Fuel Type'].isin(['Wind', 'Solar', 'ES'])]['FCA Qual'].to_list()))
+    print('----- \n')
     
     # Get the GenCos and CSO
     genCos =  getGenCos(dfISO, esCharge=args.esCharge)
     for gen in genCos: gen.updateCSO(dfISO, 'FCA Qual', vreOut=args.vreOut);
     totalCSO = np.sum([gen.CapObl for gen in genCos])
-    sumOfLoads = 20000 * 1
+    sumOfLoads = 20000 * 40
 
-    if False:
+    if True:
         # Method 1: using the iteration on Demand Curve
         previousCSO = -1.0
         while True:
             priceP1 = demandCurve(totalCSO / 1000)
             print('--Price P1: ', priceP1, 'Total CSO: ', totalCSO)
+            print('Critical point: ', (3.5 / (priceP1 * 12)) * sumOfLoads - totalCSO)
             # Update CSO based on the current P1 price
-            for gen in genCos: gen.updateCSOinFCA(dfISO, currentCSO=totalCSO, currentP1=priceP1, P2=3.5, sumOfLoads=sumOfLoads, vreOut=args.vreOut);
-            totalCSO = np.sum([gen.CapObl for gen in genCos])
+            np.random.shuffle(genCos)
+            for gen in genCos: 
+                # print(gen.CapObl)
+                gen.updateCSOinFCA(dfISO, currentCSO=totalCSO, currentP1=priceP1, P2=3.5, sumOfLoads=sumOfLoads, vreOut=args.vreOut);
+                # print(gen.CapObl)
+                totalCSO = np.sum([gen.CapObl for gen in genCos])
+                priceP1 = demandCurve(totalCSO / 1000)
+                # print('----Price P1: ', priceP1, 'Total CSO: ', totalCSO)
 
 
-            if previousCSO == totalCSO:
+            if np.abs(previousCSO - totalCSO) < 1:
                 break
             else:
                 previousCSO = totalCSO
+            # print('Total CSO: ', totalCSO, 'FCA Price: ', demandCurve(totalCSO / 1000))
+
     else:
         # Method 2: using the iteration on Demand Curve
         for i in range(1):
@@ -94,4 +105,12 @@ if __name__ == "__main__":
 
 
 
+    fuelTypes = []
+    for gen in genCos:
+        if gen.CapObl == 0.0:
+            fuelTypes.append(gen.fuelType)
 
+    import matplotlib.pyplot as plt
+    print(fuelTypes)
+    plt.hist(fuelTypes)
+    plt.show()

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-loads="low medium high"
-vres="low medium high"
+# loads="low medium high"
+# vres="low medium high"
 
 # echo "---------------------- Running Load Forecast ----------------------"
 # for load_rate in $loads; do 
@@ -10,8 +10,8 @@ vres="low medium high"
 # done
 
 # echo "---------------------- Running Forecast Simulation ----------------------"
-# # loads="medium"
-# # vres="high"
+# loads="medium"
+# vres="medium"
 # for vre in $vres; do 
 #     for load_rate in $loads; do 
 #         echo "---------------------- Forecast Simulation with load rate: $load_rate and vre mix: $vre"
@@ -32,8 +32,8 @@ for vre in $vres; do
     done
 done
 
-# # loads="medium"
-# # vres="medium"
+# loads="medium"
+# vres="medium"
 # for vre in $vres; do 
 #     for load_rate in $loads; do 
 #         python3 FCA.py --ISO ISNE --load-rate $load_rate --vre-mix $vre --verbose False --esCharge 1 

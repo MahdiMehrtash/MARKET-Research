@@ -17,6 +17,8 @@ class GenCo:
         self.FOR = FOR
         self.fuelType = fuelType
         self.ID = ID
+        self.avaialbility = 0
+        self.AAHs = 0
         if self.fuelType in ['ES']:
             self.dischargeRate = 0.25
             self.totalHours = esCharge/self.dischargeRate
@@ -32,6 +34,10 @@ class GenCo:
         if self.fuelType in ['Wind', 'Solar', 'ES'] and vreOut:
             self.CapObl = 0.0
             return
+        # if self.fuelType in ['Wind'] and vreOut:
+        #     print('??')
+        #     self.CapObl = dfISO[dfISO['ID'] == self.ID][month].item() * 0.5
+        #     return
         if len(dfISO[dfISO['Fuel Type'] == self.fuelType]) > 0:
             self.CapObl = dfISO[dfISO['ID'] == self.ID][month].item()
             
@@ -45,7 +51,7 @@ class GenCo:
 
 
     def updateCSOinFCA(self, dfISO, currentCSO, currentP1, P2, sumOfLoads, vreOut=False):
-        lambdaCoef = 0.5
+        lambdaCoef = 0.9
         if self.fuelType in ['Wind', 'Solar', 'ES'] and vreOut:
             self.CapObl = 0.0
             return
@@ -113,6 +119,7 @@ def plotResults(payments, genCos, info, markov_cons=1):
 
     paymentsByFuel = {}
     csoByFuel = {}
+    # print(payments)
     for i in range(len(genCos)):
         genco = genCos[i]
         if genco.fuelType in paymentsByFuel:
@@ -131,6 +138,48 @@ def plotResults(payments, genCos, info, markov_cons=1):
     plt.figure(figsize=(15, 5))
     plt.bar(np.array(list(paymentsByFuel.keys()))[index], np.array(list(paymentsByFuel.values()))[index] / markov_cons / 1000, label='PfP Payments')
     plt.bar(np.array(list(csoByFuel.keys()))[index], np.array(list(csoByFuel.values()))[index] * BPR * 12 / 1000, alpha=0.5, label='FCA Payments')
+    # plt.xticks(fontsize = 8) 
+    plt.ylabel('Payments M$')
+    plt.legend()
+    plt.savefig('Payments/Load-' + info[0] + '/paymentsByFuel' + '-' + info[1] + '-' + info[2] + info[3] + '.pdf')
+    plt.show(block=False)
+    plt.pause(3)
+    plt.close()
+
+
+def plotRAAIMResults(payments, genCos, info, markov_cons=1):
+    bins=50
+    print(payments.shape)
+    payed = payments.sum(axis=0)
+    # print(payed.shape)
+    plt.hist(payed / markov_cons, bins=bins)
+    plt.xlabel('Payments K$')
+    plt.ylabel('Frequency')
+    plt.yscale('log')
+    plt.title('Average Payments Distribution over {} runs'.format(markov_cons))
+    plt.savefig('Payments/Load-' + info[0] + '/paymentsdist' + '-' + info[1] + '-' + info[2] + info[3] + '.pdf')
+    plt.show(block=False)
+    plt.pause(3)
+    plt.close()
+
+    paymentsByFuel = {}
+    csoByFuel = {}
+    for i in range(len(genCos)):
+        genco = genCos[i]
+        if genco.fuelType in paymentsByFuel:
+            paymentsByFuel[genco.fuelType] += payments[i]
+            csoByFuel[genco.fuelType] += genco.CapObl
+        else:
+            paymentsByFuel[genco.fuelType]  = payments[i]
+            csoByFuel[genco.fuelType] = genco.CapObl
+
+    # Edit Fix CSO calculation
+    print(info[3] + ': ',  paymentsByFuel)
+    # print(csoByFuel)
+    index = np.argsort(list(paymentsByFuel.values()))
+    index = index[::-1]
+    plt.figure(figsize=(15, 5))
+    plt.bar(np.array(list(paymentsByFuel.keys()))[index], np.array(list(paymentsByFuel.values()))[index] / markov_cons / 1000, label='PfP Payments')
     # plt.xticks(fontsize = 8) 
     plt.ylabel('Payments M$')
     plt.legend()

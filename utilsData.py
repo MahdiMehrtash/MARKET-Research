@@ -78,7 +78,7 @@ def getFutureGeneratorData(dfISO, cap_rate=1.00, vre_mix='low', EStotalCap=1000.
 
     # Selecting all columns from the 5th column onwards
     cols_to_modify = dfISOAdj.columns[5:]
-    # Modify the DataFrame in place
+    # Modify the DataFrame in place --> adjusting Capacity and FCA Qual
     dfISOAdj.loc[dfISOAdj['Fuel Type'].isin(['Solar', 'Wind']), cols_to_modify] *= (futureTotalVRE / initTotalVRE)
     dfISOAdj.loc[dfISOAdj['Fuel Type'] == 'ES', cols_to_modify] *= (futureTotalES / initTotalES)
     dfISOAdj.loc[~dfISOAdj['Fuel Type'].isin(['Solar', 'Wind', 'ES']), cols_to_modify] *= (futureTotalNonVRE / initTotalnonVRE)
