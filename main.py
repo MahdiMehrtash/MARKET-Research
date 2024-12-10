@@ -44,6 +44,7 @@ if __name__ == "__main__":
     parser.add_argument('--verbose', type=bool, default=False)
 
     args = parser.parse_args()
+    plt.rcParams.update({'font.size': 15})
 
     # Get Future Load and Data
     dfHourlyLoad, dfHourlySolar, dfHourlyWind, dfISO, info = getFutureData(ISO=args.ISO, verbose=args.verbose, path='data/forecast/' , 
@@ -51,7 +52,8 @@ if __name__ == "__main__":
     
     __, totalCap, __, __, LOLE = info[0][0], info[1][0], info[2], info[3][0], info[4][0]
     numGenerators = len(dfISO.index)
-    print('Total Capacity: ', totalCap, 'Number of Generators: ', numGenerators, 'LOLE: ', LOLE, 'Total CSO: ', sum(dfISO['June'].to_list()))
+    TotMaxCSO = sum(dfISO['June'].to_list())
+    print('Total Capacity: ', totalCap, 'Number of Generators: ', numGenerators, 'LOLE: ', LOLE, 'Total CSO: ', TotMaxCSO)
 
     # Get the Minimum Reserve Requirement for CSC
     capacities = list(dfISO['Nameplate Capacity (MW)'].sort_values(ascending=False))
@@ -63,7 +65,8 @@ if __name__ == "__main__":
 
     # Run the Market Simulation
     paymentsPFP, paymentsCP = [], []
-    market = Market(MRR=[MRR_PfP, MRR_CP])
+    PfPavailabilitys = []
+    market = Market(MRR=[MRR_PfP, MRR_CP], load=args.load_rate)
     last_month = None; totalCSO = -1
     for __ in range(args.markov_cons):
         for hour in tqdm(range(dfHourlyLoad.index.stop - dfHourlyLoad.index.start)):
@@ -81,20 +84,39 @@ if __name__ == "__main__":
                 totalCSO = sum([gen.CapObl for gen in genCos])
 
             loads = [hourlyLoad, hourlynegativeLoadSolar, hourlynegativeLoadWind]
-            paymentPFP, paymentCP = market.run(numGen=numGenerators, genCos=genCos, totalCSO=totalCSO, load=loads, date=[date,hourEnding] , verbose=False)
+            paymentPFP, paymentCP, PfPavailability = market.run(numGen=numGenerators, genCos=genCos, totalCSO=totalCSO, load=loads, date=[date,hourEnding] , verbose=False)
             paymentPFP = np.concatenate([x if isinstance(x, np.ndarray) else [x] for x in paymentPFP])
             paymentCP = np.concatenate([x if isinstance(x, np.ndarray) else [x] for x in paymentCP])
-            paymentsPFP.append(paymentPFP); paymentsCP.append(paymentCP)
+            paymentsPFP.append(paymentPFP); paymentsCP.append(paymentCP); 
+            if PfPavailability is not None:    
+                PfPavailabilitys.append(PfPavailability)
+            # if market.numberOfCSCs > 1:
+            #     break
 
-    paymentRAAIM = market.RAAIM(genCos=genCos)
+    # paymentRAAIM = market.RAAIM(genCos=genCos)
+    paymentsPFP = np.array(paymentsPFP); 
+    PfPavailabilitys = np.array(PfPavailabilitys).reshape(numGenerators, -1)
+    # paymentsCP = np.array(paymentsCP); 
+    # paymentRAAIM = np.array(paymentRAAIM)
+
+    # # Save ISONE Payments ------------
+    # Convert NumPy array to DataFrame
+    df = pd.DataFrame(PfPavailabilitys)
+    df['id'] = [gen.ID for gen in genCos]
+    df['type'] = [gen.fuelType for gen in genCos]
+    column_names = [f"CSC#_{i+1}" for i in range(df.shape[1] - 2)]  # Exclude the 'id' column
+    df.columns = column_names + ['id', 'type']
+    df.to_excel("./paymentsPFP_with_info.xlsx", index=False)
+    # -------------------------------
 
         
-    print('Average CSC: ', market.numberOfCSCs / args.markov_cons, 'Average PAI: ', market.numberOfPAIs / args.markov_cons)
-    
-    paymentsPFP = np.array(paymentsPFP); paymentsCP = np.array(paymentsCP); paymentRAAIM = np.array(paymentRAAIM)
-    print('Total PFP Payments:', paymentsPFP.sum(), 'Total CP Payments:', paymentsCP.sum(), 'Total RAAIM Payments:', paymentRAAIM.sum())
-    plotResults(paymentsPFP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'PfP'], markov_cons=args.markov_cons)
-    plotResults(paymentsCP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'CP'], markov_cons=args.markov_cons)
-    plotRAAIMResults(paymentRAAIM, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'RAAIM'], markov_cons=args.markov_cons)
+    print('Average LOLE: ', market.LOLE / args.markov_cons, 'Average CSC: ', market.numberOfCSCs / args.markov_cons, 
+          'Average PAI: ', market.numberOfPAIs / args.markov_cons)
+    # print('Total PFP Payments:', paymentsPFP.sum(), 'Total CP Payments:', paymentsCP.sum())
+    # , 'Total RAAIM Payments:', paymentRAAIM.sum())
+
+    plotResults(paymentsPFP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'PfP'], markov_cons=args.markov_cons, TotMaxCSO=TotMaxCSO)
+    # plotResults(paymentsCP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'CP'], markov_cons=args.markov_cons)
+    # plotRAAIMResults(paymentRAAIM, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'RAAIM'], markov_cons=args.markov_cons)
 
 

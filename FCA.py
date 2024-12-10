@@ -105,12 +105,13 @@ if __name__ == "__main__":
 
 
 
-    fuelTypes = []
+    CSObyFuelType = {}
     for gen in genCos:
-        if gen.CapObl == 0.0:
-            fuelTypes.append(gen.fuelType)
+        if gen.fuelType not in CSObyFuelType:
+            CSObyFuelType[gen.fuelType] = gen.CapObl
+        else:
+            CSObyFuelType[gen.fuelType] += gen.CapObl
 
     import matplotlib.pyplot as plt
-    print(fuelTypes)
-    plt.hist(fuelTypes)
+    plt.bar(CSObyFuelType.keys(), CSObyFuelType.values())
     plt.show()

@@ -68,7 +68,7 @@ if __name__ == "__main__":
     # Get 2030 Load
     dfHourlyLoadAdj = getFutureLoad(ISO=args.ISO, verbose=args.verbose, path='data/forecast/load_rate_' + args.load_rate + '/dfHourlyDemand2030.csv')
     # Build Future Data
-    cap_rate = 1.25
+    cap_rate = 1.00
     RA = False
     while RA is False:
         print('capacity increase rate:', cap_rate)
@@ -82,10 +82,10 @@ if __name__ == "__main__":
         # Get the GenCos
         genCos =  getGenCos(dfISOAdj, esCharge=args.esCharge)
         
-        market = Market(MRR=[])
+        market = Market(MRR=[0, 0], load=args.load_rate)
         RA, lole = getRA(args.markov_cons, market, genCos, dfHourlyLoadAdj, dfHourlySolarAdj, dfHourlyWindAdj)
         if RA is False:
-            cap_rate += 0.25
+            cap_rate += 0.025
 
     # Save to CSV
     datentime = datetime.now().strftime("%Y/%m/%d-%H:%M:%S")

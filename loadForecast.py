@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from datetime import datetime
 import argparse
+import matplotlib.dates as mdates
 
 from utilsData import getHourlyLoad, LOAD_ADJ
 
@@ -38,6 +39,8 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
+    plt.rcParams.update({'font.size': 15})
+
     # Get 2023 Load
     dfHourlyLoad = getHourlyLoad(ISO=args.ISO, verbose=args.verbose)
 
@@ -56,11 +59,17 @@ if __name__ == "__main__":
 
         timeRange = pd.date_range(start, end, periods=len(dfHourlyLoad))
 
-        plt.figure(figsize=(15, 5))
+        plt.figure(figsize=(10, 5))
         plt.plot(timeRange, dfHourlyLoad['Total Load'], label='Total Load 2023', alpha=0.5)
         plt.plot(timeRange, dfHourlyLoadAdj['Total Load'], label='Total Load 2030', alpha=0.5)
         plt.ylim(0, 30000)
-        plt.xlabel('Date')
+
+        ax = plt.gca()  # Get current axis
+        ax.xaxis.set_major_locator(mdates.MonthLocator())  # Set major ticks to be months
+        ax.xaxis.set_major_formatter(mdates.DateFormatter('%b')) 
+
+
+        # plt.xlabel('Date')
         plt.ylabel('Load (MW)')
         plt.legend()
         plt.savefig('data/forecast/load_rate_' + args.load_rate + '/loadComparison.pdf')

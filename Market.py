@@ -4,14 +4,16 @@ from datetime import datetime
 
 
 class Market:
-    def __init__(self, MRR):
+    def __init__(self, MRR, load=None):
         self.numberOfCSCs = 0
         self.numberOfPAIs = 0
+        self.LOLE = 0
         self.MRR_PFP, self.MRR_CP = MRR[0], MRR[1]
 
-        with open('Payments/log.csv', 'a') as f:
+        with open('Payments/log.csv', 'w') as f:
             f.write('Running a new code' + '\n')
             f.write( datetime.now().strftime("%d/%m/%Y %H:%M:%S ") + '\n')
+            f.write( 'LoadRate' + str(load) + '\n')
         f.close()
 
     def getCurrentCap(self, genCos):
@@ -42,8 +44,12 @@ class Market:
 
         incentive = Incentive(genCos)
         realAvaialableCap = totalAvailableCap - hourlyLoad + hourlynegativeLoadSolar + hourlynegativeLoadWind
+
+        if realAvaialableCap < 0:
+            self.LOLE += 1
+
         # ISONE
-        if  realAvaialableCap < self.MRR_PFP:
+        if realAvaialableCap < self.MRR_PFP:
             self.numberOfCSCs += 1
             # open a csv file and append the date and time
             logDict = {'Date': date[0].strftime("%d/%m/%Y"),\
@@ -60,10 +66,13 @@ class Market:
                 dictwriter_object.writerow(logDict)
                 f_object.close()
 
-            paymentsPFP = incentive.calcPFP(hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, totalCSO)
+            paymentsPFP, avaialbility = incentive.calcPFP(hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, totalCSO)
             paymentsPFP = np.array(paymentsPFP)
+            PfPAvaialbility = np.array(avaialbility)
         else:
             paymentsPFP = np.zeros((numGen, 1))
+            PfPAvaialbility = None
+
 
 
         # PJM   
@@ -74,8 +83,8 @@ class Market:
         else:
             paymentsCP = np.zeros((numGen, 1))
 
-        # RAAIM
-        incentive.calcRAAIM(hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, date)
+        # # RAAIM
+        # incentive.calcRAAIM(hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, date)
         
 
         if realAvaialableCap  >= np.maximum(self.MRR_PFP, self.MRR_CP):
@@ -84,23 +93,26 @@ class Market:
                 if gen.fuelType in ['ES']:
                     gen.hoursRemaining = np.minimum(gen.totalHours, gen.hoursRemaining + 1)
 
-        return paymentsPFP, paymentsCP
+        return paymentsPFP, paymentsCP, PfPAvaialbility
     
     def RAAIM(self, genCos):
         paymentsRAAIM = []
-        self.RAAIM_PPR = 3.79  # $/kW-month
+        self.RAAIM_PPR = 3.79  #$/kW-month
 
         for genCo in genCos:
-            availabilityFactor = genCo.avaialbility / genCo.AAHs
-            if availabilityFactor <= 0.945:
-                shortfall = 0.945 - availabilityFactor
-                paymentsRAAIM.append(int(shortfall * self.RAAIM_PPR * genCo.MaxCap))
-            elif availabilityFactor >= 0.985:
-                overperform = availabilityFactor - 0.985
-                paymentsRAAIM.append(int(overperform * self.RAAIM_PPR * genCo.MaxCap))
-            else:
-                paymentsRAAIM.append(0)
-        return paymentsRAAIM * 12
+            payment = []
+            for month in range(1, 13):
+                availabilityFactor = genCo.availability[month] / genCo.AAHs[month]
+                if availabilityFactor <= 0.945:
+                    shortfall = availabilityFactor - 0.945
+                    payment.append(int(shortfall * self.RAAIM_PPR * genCo.MaxCap))
+                elif availabilityFactor >= 0.985:
+                    overperform = availabilityFactor - 0.985
+                    payment.append(int(overperform * self.RAAIM_PPR * genCo.MaxCap))
+                else:
+                    payment.append(0)
+            paymentsRAAIM.append(payment)
+        return paymentsRAAIM 
 
     
     def RA(self, genCos, load, verbose=False):
@@ -127,14 +139,15 @@ class Incentive:
 
     def calcPFP(self, hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, totalCSO, PPR=9.337):
         perfScores = []
+        avaialbility = []
         #PRR is 3.5 K$ / MWh
         self.PFP_PPR = PPR
 
         # balancingRatio = (hourlyLoad + self.MRR) / self.totalCSO
-        balancingRatio = (sum([genCo.availableCap for genCo in self.genCos if genCo.fuelType not in ['Solar', 'Wind']]) +\
-                                 hourlynegativeLoadWind + hourlynegativeLoadSolar) / totalCSO
+        totAv = (sum([genCo.availableCap for genCo in self.genCos if genCo.fuelType not in ['Solar', 'Wind']]) +\
+                                 hourlynegativeLoadWind + hourlynegativeLoadSolar)
+        balancingRatio =  totAv / totalCSO
         # print(balancingRatio)
-        # balancingRatio = np.minimum(1, balancingRatio)
         # balancingRatio = (hourlyLoad + self.MRR)/totalCSO
 
         # Calculate Wind and Solar separately
@@ -150,14 +163,17 @@ class Incentive:
         for genCo in self.genCos:
             if genCo.fuelType == 'Solar':
                 perfScores.append(solarScore / numSolar)
+                avaialbility.append(hourlynegativeLoadSolar / numSolar)
             elif genCo.fuelType == 'Wind':
                 perfScores.append(windScore / numWind)
+                avaialbility.append(hourlynegativeLoadWind / numWind)
             else:
                 perfScores.append((genCo.availableCap - balancingRatio * genCo.CapObl))
+                avaialbility.append(genCo.availableCap)
 
 
         perfScores = np.array(perfScores)
-        return perfScores * self.PFP_PPR
+        return perfScores * self.PFP_PPR, avaialbility
     
     def calcCP(self, hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, totalCSO, CONE=0.35):
         perfScores = []
@@ -203,6 +219,7 @@ class Incentive:
             'Solar': 0.98, 'Wind': 1.00, 'ES':0.92, 'Other': 0.93}
         
         genericFuelTypes = ['Landfill Gas', 'Gas', 'Gas-Other', 'Oil', 'Coal', 'Hydro', 'Nuclear', 'Refuse/Woods', 'Wind', 'Solar']
+        # @TODO add gas  to peak 
         baseRampFuelType = ['LD', 'Demand']
         superRampFuelType = ['ES']
         
@@ -233,21 +250,15 @@ class Incentive:
 
         for genCo in self.genCos:
             availability_prob = Availability_dict[genCo.fuelType]
-            if genCo.fuelType in genericFuelTypes:
-                if isAAH('generic', date):
-                    genCo.avaialbility += np.random.choice(2, 1, p=[1-availability_prob, availability_prob])
-                    genCo.AAHs += 1
-            elif genCo.fuelType in baseRampFuelType:
-                if isAAH('baseRamp', date):
-                    genCo.avaialbility += np.random.choice(2, 1, p=[1-availability_prob, availability_prob])
-                    genCo.AAHs += 1
-            elif genCo.fuelType in superRampFuelType:
-                if isAAH('superRamp', date):    
-                    genCo.avaialbility += np.random.choice(2, 1, p=[1-availability_prob, availability_prob])
-                    genCo.AAHs += 1
-            else:
-                print(genCo.fuelType)
-                raise ValueError('Fuel Type not recognized')
-            
+            # print(genCo.fuelType, availability_prob)
+            if ((genCo.fuelType in genericFuelTypes) and isAAH('generic', date)) or\
+                ((genCo.fuelType in baseRampFuelType) and isAAH('baseRamp', date)) or\
+                ((genCo.fuelType in superRampFuelType) and isAAH('superRamp', date)):
+                    if date[0].month in genCo.availability.keys():
+                        genCo.availability[date[0].month] += np.random.choice(2, 1, p=[1-availability_prob, availability_prob])
+                        genCo.AAHs[date[0].month] += 1
+                    else:
+                        genCo.availability[date[0].month] = np.random.choice(2, 1, p=[1-availability_prob, availability_prob])
+                        genCo.AAHs[date[0].month] = 1
 
     
