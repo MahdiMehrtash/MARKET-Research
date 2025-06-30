@@ -68,7 +68,7 @@ class Market:
 
             paymentsPFP, avaialbility = incentive.calcPFP(hourlynegativeLoadSolar, hourlynegativeLoadWind, hourlyLoad, totalCSO)
             paymentsPFP = np.array(paymentsPFP)
-            PfPAvaialbility = np.array(avaialbility)
+            PfPAvaialbility = avaialbility
         else:
             paymentsPFP = np.zeros((numGen, 1))
             PfPAvaialbility = None
@@ -163,13 +163,13 @@ class Incentive:
         for genCo in self.genCos:
             if genCo.fuelType == 'Solar':
                 perfScores.append(solarScore / numSolar)
-                avaialbility.append(hourlynegativeLoadSolar / numSolar)
+                avaialbility.append((hourlynegativeLoadSolar / numSolar).item())
             elif genCo.fuelType == 'Wind':
                 perfScores.append(windScore / numWind)
-                avaialbility.append(hourlynegativeLoadWind / numWind)
+                avaialbility.append((hourlynegativeLoadWind / numWind).item())
             else:
                 perfScores.append((genCo.availableCap - balancingRatio * genCo.CapObl))
-                avaialbility.append(genCo.availableCap)
+                avaialbility.append((genCo.availableCap).item())
 
 
         perfScores = np.array(perfScores)

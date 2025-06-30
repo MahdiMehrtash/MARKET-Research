@@ -14,7 +14,15 @@ def demandCurve(x):
     assert x >= 0.0
     cnt1x = 20.0
     cnt2x = 30.0
-    maxPrice = 30
+    if args.load_rate == 'low':
+        if args.vre_mix == 'low':
+            maxPrice = 20
+        elif args.vre_mix == 'medium':
+            maxPrice = 28
+        elif args.vre_mix == 'high':
+            maxPrice = 58
+    else:
+        maxPrice= 60
 
     if x <= cnt1x:
         return maxPrice #$/kW-month or k$/MW-month
@@ -32,6 +40,8 @@ if __name__ == "__main__":
     parser.add_argument('--vreOut', action='store_true', help='VRE take no CSO.')
     parser.add_argument('--esCharge', type=float, default=1.0, help='ESs charge level @ CSCs.')
     parser.add_argument('--verbose', type=bool, default=False)
+    parser.add_argument('--markov-cons', type=int, default=1, help='Number of simulations to run.')
+    parser.add_argument('--method', type=str, choices=['CP', 'PfP'], default='PfP', help='Method to use to calculate payments.')
 
     args = parser.parse_args()
 
@@ -47,36 +57,25 @@ if __name__ == "__main__":
     print('----- \n')
     
     plt.rcParams.update({'font.size': 15})
+    
+    if args.method == 'CP': p2 = 0.35 * 365 / 30 # K$/MWh
+    elif args.method == 'PfP': p2 = 9.337 # K$/MWh
 
-    p2 = 9.337
     # Get the GenCos and CSO
     genCos =  getGenCos(dfISO, esCharge=args.esCharge)
     for gen in genCos: gen.updateCSO(dfISO, 'FCA Qual', vreOut=args.vreOut);
     totalCSO = np.sum([gen.CapObl for gen in genCos])   
 
-    # winds, solars = [], []
-    # for gen in genCos:
-    #     if gen.fuelType in ['Wind']:
-    #         winds.append(gen.MaxCap)
-    #     elif gen.fuelType in ['Solar']:
-    #         solars.append(gen.MaxCap)
 
-    # plt.hist(winds, bins=50, alpha=1, label='Wind')
-    # plt.hist(solars, bins=50, alpha=0.5, label='Solar')
-    # plt.legend()
-    # plt.show()
-        
-    # for gen in genCos: gen.updateCSO(dfISO, 'Jan', vreOut=args.vreOut);
-    # raise
-
-    file_path = "./paymentsPFP_with_info.xlsx"
+    file_path = "./run_data/paymentsPFP_with_info-" + args.load_rate + args.vre_mix + ".xlsx"
     df = pd.read_excel(file_path)
 
     # Apply a map to convert string lists like '[2.4]' to float values
-    df_numeric = df.iloc[:, :-2].applymap(lambda x: ast.literal_eval(x)[0] if isinstance(x, str) else x)
+    df_numeric = df.iloc[:, :-2].applymap(lambda x: ast.literal_eval(x)[0] if isinstance(x, str) else x) // args.markov_cons
     
     sumOfLoads = df_numeric.sum().sum()
     print('Sum of Loads: ', sumOfLoads)
+    print('Number of CSCs' , len(df_numeric.columns) / args.markov_cons)
 
     # Method 1: using the iteration on Demand Curve
     previousCSO = -1.0
@@ -107,7 +106,7 @@ if __name__ == "__main__":
     #     elif gen.fuelType in ['Solar']:
     #         print(gen.fuelType, gen.CapObl, dfISO[dfISO['ID'] == gen.ID]['FCA Qual'].item())
 
-
+    
 
     CSObyFuelType = {}
     ICAPbyFuelType = {}
@@ -119,24 +118,28 @@ if __name__ == "__main__":
             CSObyFuelType[gen.fuelType] += gen.CapObl
             ICAPbyFuelType[gen.fuelType] += gen.MaxCap
 
-    plt.bar(CSObyFuelType.keys(), CSObyFuelType.values(), label='CSO')
-    plt.legend()
-    plt.show()
+    # plt.bar(CSObyFuelType.keys(), CSObyFuelType.values(), label='CSO', alpha=0.5)
+    # plt.legend()
+    # plt.show(block=False)
 
     fuel_types = list(CSObyFuelType.keys())
     cso_values = [CSObyFuelType[fuel] for fuel in fuel_types]
     icap_values = [ICAPbyFuelType[fuel] for fuel in fuel_types]
 
-    plt.bar(fuel_types, [cso / icap if icap != 0 else 0 for cso, icap in zip(cso_values, icap_values)], label='CSO/ICAP')
+    plt.bar(fuel_types, [cso / icap if icap != 0 else 0 for cso, icap in zip(cso_values, icap_values)], label='CSO/ICAP', alpha=1.0)
     plt.legend()
-    plt.show()
+    plt.xticks(rotation=45)  # Rotates x-axis labels by 45 degrees
+    plt.tight_layout() 
+    plt.savefig('./Equilibrium/dist-' + args.vre_mix + '.pdf')
+    plt.show(block=False)
 
     payment = []
     paymentsByFuel, csoByFuel = {}, {}
     print("P1", priceP1)
-    br = df_numeric.iloc[:, :-2].sum(axis=0) / totalCSO
-    # print(br)
-    # raise
+    br = df_numeric.iloc[:, :-2].sum(axis=0) / totalCSO 
+    br = np.array(br)
+    if args.method == 'CP': br[br >= 1.0] = 1.0
+
     for i in range(len(genCos)):
         genco = genCos[i]
         paid =  p2 * (df_numeric[df['id'] == genCos[i].ID].sum(axis=1) - br.sum() * genCos[i].CapObl)
@@ -153,11 +156,30 @@ if __name__ == "__main__":
     index = index[::-1]
     plt.figure(figsize=(10, 5))
     val = np.array(list(paymentsByFuel.values()))[index]  / 1000
-    plt.bar(np.array(list(paymentsByFuel.keys()))[index], val, label='PfP Payments')
-    plt.bar(np.array(list(csoByFuel.keys()))[index], np.array(list(csoByFuel.values()))[index] * priceP1 * 12 / 1000,alpha=0.5, label='FCA Payments')
+    plt.bar(np.array(list(paymentsByFuel.keys()))[index], val, label=args.method + ' Payments')
+    # plt.bar(np.array(list(csoByFuel.keys()))[index], np.array(list(csoByFuel.values()))[index] * priceP1 * 12 / 1000,alpha=0.5, label='FCA Payments')
     plt.legend()
     plt.xticks(rotation=45)  # Rotates x-axis labels by 45 degrees
     plt.ylabel('Payments M$')
     plt.tight_layout() 
-    plt.savefig('tmp.pdf')
+    plt.savefig('./Equilibrium/' + args.method + '-' + args.vre_mix + '.pdf')
+    plt.show(block=False)
+
+    # Step 1: Filter fuel types where ICAPbyFuelType[fuel] > 5
+    filtered_fuel_types = [fuel for fuel in fuel_types if ICAPbyFuelType[fuel] > 100]
+
+    # Step 2: Sort and process data for the filtered fuel types
+    index = np.argsort([paymentsByFuel[fuel] / ICAPbyFuelType[fuel] for fuel in filtered_fuel_types])
+    val = np.array([paymentsByFuel[fuel] / ICAPbyFuelType[fuel] for fuel in filtered_fuel_types])[index]
+    sorted_fuel_types = np.array(filtered_fuel_types)[index]
+
+    # Step 3: Plot the bar chart
+    plt.figure(figsize=(10, 5))
+    plt.bar(sorted_fuel_types, val, label=args.method + ' Payments / ICAP')
+    plt.legend()
+    plt.xticks(rotation=45)  # Rotates x-axis labels by 45 degrees
+    plt.ylabel('Payments / ICAP M$/MW')
+    plt.tight_layout()
+    plt.savefig('./Equilibrium/' + args.method + '-ICAP-' + args.vre_mix + '.pdf')
     plt.show()
+

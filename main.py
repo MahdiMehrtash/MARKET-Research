@@ -106,7 +106,7 @@ if __name__ == "__main__":
     df['type'] = [gen.fuelType for gen in genCos]
     column_names = [f"CSC#_{i+1}" for i in range(df.shape[1] - 2)]  # Exclude the 'id' column
     df.columns = column_names + ['id', 'type']
-    df.to_excel("./paymentsPFP_with_info.xlsx", index=False)
+    df.to_excel("./run_data/paymentsPFP_with_info-" + args.load_rate + args.vre_mix + ".xlsx", index=False)
     # -------------------------------
 
         
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     # print('Total PFP Payments:', paymentsPFP.sum(), 'Total CP Payments:', paymentsCP.sum())
     # , 'Total RAAIM Payments:', paymentRAAIM.sum())
 
-    plotResults(paymentsPFP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'PfP'], markov_cons=args.markov_cons, TotMaxCSO=TotMaxCSO)
+    # plotResults(paymentsPFP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'PfP'], markov_cons=args.markov_cons, TotMaxCSO=TotMaxCSO)
     # plotResults(paymentsCP, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'CP'], markov_cons=args.markov_cons)
     # plotRAAIMResults(paymentRAAIM, genCos, [args.load_rate, args.vre_mix, str(args.esCharge), 'RAAIM'], markov_cons=args.markov_cons)
 
